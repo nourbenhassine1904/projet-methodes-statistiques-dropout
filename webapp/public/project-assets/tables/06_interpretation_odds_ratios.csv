@@ -1,0 +1,13 @@
+term,odds_ratio,p.value,interpretation
+(Intercept),41.60434070761462,1.0242089150050265e-12,"Constante du modele, non interpretee comme une variable explicative."
+age_at_enrollment,1.0549309227683834,1.967811374036536e-15,"Variable associee a une augmentation du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+admission_grade,0.9872098048572087,1.7369028504518258e-4,"Variable associee a une diminution du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+debtorOui,1.675269982388124,0.0017720222913386503,"Variable associee a une augmentation du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+tuition_fees_up_to_dateOui,0.11362905016984158,1.7837353873918844e-33,"Variable associee a une diminution du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+scholarship_holderOui,0.4257486145062164,1.2640143845179287e-9,"Variable associee a une diminution du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+genderHomme,1.2719513089734966,0.02098700246975904,"Variable associee a une augmentation du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+displacedOui,1.0776971076970365,0.49086700192131805,"Variable associee a une augmentation du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+curricular_units_1st_sem_approved,1.0773264451031388,0.060450033514281125,"Variable associee a une augmentation du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+curricular_units_1st_sem_grade,1.0188559324679025,0.3608706318463109,"Variable associee a une augmentation du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+curricular_units_2nd_sem_approved,0.6484044050978476,4.794834266535254e-22,"Variable associee a une diminution du risque de Dropout, toutes choses egales par ailleurs dans ce modele."
+curricular_units_2nd_sem_grade,0.8976093624195511,1.5083472424689421e-7,"Variable associee a une diminution du risque de Dropout, toutes choses egales par ailleurs dans ce modele."

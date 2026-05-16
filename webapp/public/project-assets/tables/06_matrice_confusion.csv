@@ -1,0 +1,5 @@
+dropout_binaire,prediction,effectif
+Non_Dropout,Non_Dropout,557
+Non_Dropout,Dropout,44
+Dropout,Non_Dropout,82
+Dropout,Dropout,202

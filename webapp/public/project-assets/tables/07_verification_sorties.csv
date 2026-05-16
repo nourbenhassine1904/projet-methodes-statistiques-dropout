@@ -1,0 +1,8 @@
+sortie,existe
+data/processed/dropout_clean.rds,TRUE
+outputs/models/04_resultat_famd.rds,TRUE
+outputs/models/05_kmeans.rds,TRUE
+outputs/models/06_modele_logistique_dropout.rds,TRUE
+outputs/tables/04_famd_valeurs_propres.csv,TRUE
+outputs/tables/05_croisement_cluster_target.csv,TRUE
+outputs/tables/06_logit_odds_ratios.csv,TRUE

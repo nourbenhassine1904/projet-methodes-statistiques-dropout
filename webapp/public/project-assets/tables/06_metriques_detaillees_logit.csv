@@ -1,0 +1,2 @@
+accuracy,precision_dropout,recall_dropout,f1_dropout,specificity_non_dropout,vrais_positifs,faux_positifs,faux_negatifs,vrais_negatifs,seuil_prediction
+0.8576271186440678,0.8211382113821138,0.7112676056338029,0.7622641509433963,0.9267886855241264,202,44,82,557,0.5

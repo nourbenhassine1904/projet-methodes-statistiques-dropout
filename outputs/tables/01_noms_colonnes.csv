@@ -1,0 +1,38 @@
+position,nom_original,nom_nettoye
+1,Marital status,marital_status
+2,Application mode,application_mode
+3,Application order,application_order
+4,Course,course
+5,Daytime/evening attendance,daytime_evening_attendance
+6,Previous qualification,previous_qualification
+7,Previous qualification (grade),previous_qualification_grade
+8,Nacionality,nacionality
+9,Mother's qualification,mothers_qualification
+10,Father's qualification,fathers_qualification
+11,Mother's occupation,mothers_occupation
+12,Father's occupation,fathers_occupation
+13,Admission grade,admission_grade
+14,Displaced,displaced
+15,Educational special needs,educational_special_needs
+16,Debtor,debtor
+17,Tuition fees up to date,tuition_fees_up_to_date
+18,Gender,gender
+19,Scholarship holder,scholarship_holder
+20,Age at enrollment,age_at_enrollment
+21,International,international
+22,Curricular units 1st sem (credited),curricular_units_1st_sem_credited
+23,Curricular units 1st sem (enrolled),curricular_units_1st_sem_enrolled
+24,Curricular units 1st sem (evaluations),curricular_units_1st_sem_evaluations
+25,Curricular units 1st sem (approved),curricular_units_1st_sem_approved
+26,Curricular units 1st sem (grade),curricular_units_1st_sem_grade
+27,Curricular units 1st sem (without evaluations),curricular_units_1st_sem_without_evaluations
+28,Curricular units 2nd sem (credited),curricular_units_2nd_sem_credited
+29,Curricular units 2nd sem (enrolled),curricular_units_2nd_sem_enrolled
+30,Curricular units 2nd sem (evaluations),curricular_units_2nd_sem_evaluations
+31,Curricular units 2nd sem (approved),curricular_units_2nd_sem_approved
+32,Curricular units 2nd sem (grade),curricular_units_2nd_sem_grade
+33,Curricular units 2nd sem (without evaluations),curricular_units_2nd_sem_without_evaluations
+34,Unemployment rate,unemployment_rate
+35,Inflation rate,inflation_rate
+36,GDP,gdp
+37,Target,target

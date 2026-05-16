@@ -1,0 +1,40 @@
+variable,bloc,role,classe,nb_modalites,modalites,description
+marital_status,socio-demographique,active possible,factor,6,1 | 2 | 3 | 4 | 5 | 6,"Statut matrimonial, code qualitatif du dataset."
+application_mode,parcours administratif,contextuelle,factor,18,1 | 2 | 5 | 7 | 10 | 15 | 16 | 17 | 18 | 26 | 27 | 39 | 42 | 43 | 44 | 51 | 53 | 57,"Mode de candidature, code qualitatif du dataset."
+application_order,parcours administratif,active possible,numeric,8,NA,Ordre de choix de la candidature.
+course,parcours academique,contextuelle,factor,17,33 | 171 | 8014 | 9003 | 9070 | 9085 | 9119 | 9130 | 9147 | 9238 | 9254 | 9500 | 9556 | 9670 | 9773 | 9853 | 9991,"Formation suivie, code qualitatif du dataset."
+daytime_evening_attendance,parcours academique,active possible,factor,2,0 | 1,"Type de frequentation : jour ou soir, code qualitatif du dataset."
+previous_qualification,parcours academique,active possible,factor,17,1 | 2 | 3 | 4 | 5 | 6 | 9 | 10 | 12 | 14 | 15 | 19 | 38 | 39 | 40 | 42 | 43,"Qualification precedente, code qualitatif du dataset."
+previous_qualification_grade,parcours academique,active possible,numeric,101,NA,Note associee a la qualification precedente.
+nacionality,socio-demographique,contextuelle,factor,21,1 | 2 | 6 | 11 | 13 | 14 | 17 | 21 | 22 | 24 | 25 | 26 | 32 | 41 | 62 | 100 | 101 | 103 | 105 | 108 | 109,"Nationalite, code qualitatif du dataset."
+mothers_qualification,socio-economique,contextuelle,factor,29,1 | 2 | 3 | 4 | 5 | 6 | 9 | 10 | 11 | 12 | 14 | 18 | 19 | 22 | 26 | 27 | 29 | 30 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44,"Qualification de la mere, code qualitatif du dataset."
+fathers_qualification,socio-economique,contextuelle,factor,34,1 | 2 | 3 | 4 | 5 | 6 | 9 | 10 | 11 | 12 | 13 | 14 | 18 | 19 | 20 | 22 | 25 | 26 | 27 | 29 | 30 | 31 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44,"Qualification du pere, code qualitatif du dataset."
+mothers_occupation,socio-economique,contextuelle,factor,32,0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 90 | 99 | 122 | 123 | 125 | 131 | 132 | 134 | 141 | 143 | 144 | 151 | 152 | 153 | 171 | 173 | 175 | 191 | 192 | 193 | 194,"Occupation de la mere, code qualitatif du dataset."
+fathers_occupation,socio-economique,contextuelle,factor,46,0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 90 | 99 | 101 | 102 | 103 | 112 | 114 | 121 | 122 | 123 | 124 | 131 | 132 | 134 | 135 | 141 | 143 | 144 | 151 | 152 | 153 | 154 | 161 | 163 | 171 | 172 | 174 | 175 | 181 | 182 | 183 | 192 | 193 | 194 | 195,"Occupation du pere, code qualitatif du dataset."
+admission_grade,parcours academique,active possible,numeric,620,NA,Note d'admission.
+displaced,socio-demographique,active possible,factor,2,Non | Oui,Etudiant deplace : Non / Oui.
+educational_special_needs,socio-demographique,active possible,factor,2,Non | Oui,Besoins educatifs speciaux : Non / Oui.
+debtor,socio-economique,active possible,factor,2,Non | Oui,Debiteur : Non / Oui.
+tuition_fees_up_to_date,socio-economique,active possible,factor,2,Non | Oui,Frais de scolarite a jour : Non / Oui.
+gender,socio-demographique,active possible,factor,2,Femme | Homme,Genre : Femme / Homme selon le codage du dataset.
+scholarship_holder,socio-economique,active possible,factor,2,Non | Oui,Boursier : Non / Oui.
+age_at_enrollment,socio-demographique,active possible,numeric,46,NA,Age au moment de l'inscription.
+international,socio-demographique,active possible,factor,2,Non | Oui,Etudiant international : Non / Oui.
+curricular_units_1st_sem_credited,parcours academique,contextuelle,numeric,21,NA,Unites creditees au 1er semestre.
+curricular_units_1st_sem_enrolled,parcours academique,active possible,numeric,23,NA,Unites inscrites au 1er semestre.
+curricular_units_1st_sem_evaluations,parcours academique,active possible,numeric,35,NA,Evaluations au 1er semestre.
+curricular_units_1st_sem_approved,parcours academique,active possible,numeric,23,NA,Unites approuvees au 1er semestre.
+curricular_units_1st_sem_grade,parcours academique,active possible,numeric,805,NA,Note moyenne au 1er semestre.
+curricular_units_1st_sem_without_evaluations,parcours academique,active possible,numeric,11,NA,Unites sans evaluation au 1er semestre.
+curricular_units_2nd_sem_credited,parcours academique,contextuelle,numeric,19,NA,Unites creditees au 2e semestre.
+curricular_units_2nd_sem_enrolled,parcours academique,active possible,numeric,22,NA,Unites inscrites au 2e semestre.
+curricular_units_2nd_sem_evaluations,parcours academique,active possible,numeric,30,NA,Evaluations au 2e semestre.
+curricular_units_2nd_sem_approved,parcours academique,active possible,numeric,20,NA,Unites approuvees au 2e semestre.
+curricular_units_2nd_sem_grade,parcours academique,active possible,numeric,786,NA,Note moyenne au 2e semestre.
+curricular_units_2nd_sem_without_evaluations,parcours academique,active possible,numeric,10,NA,Unites sans evaluation au 2e semestre.
+unemployment_rate,contexte economique,active possible,numeric,10,NA,Taux de chomage.
+inflation_rate,contexte economique,active possible,numeric,9,NA,Taux d'inflation.
+gdp,contexte economique,active possible,numeric,10,NA,PIB.
+target,cible,variable supplementaire / cible,factor,3,Dropout | Enrolled | Graduate,"Statut final : Dropout, Enrolled ou Graduate."
+dropout_binary,cible,cible binaire,factor,2,Non_Dropout | Dropout,Dropout vs Non_Dropout.
+success_binary,cible,cible binaire,factor,2,Non_Graduate | Graduate,Graduate vs Non_Graduate.
