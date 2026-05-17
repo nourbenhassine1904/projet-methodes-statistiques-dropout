@@ -1,30 +1,57 @@
 import React, { useMemo, useState } from "react";
 import {
+  activeVariables,
+  auditChecks,
+  clusterValidationRows,
+  clusteringRecommendation,
   clusters,
+  defenseQuestions,
+  famdAxisReadings,
+  famdMetrics,
   figures,
-  kpis,
-  limits,
-  logitMetrics,
-  methods,
+  finalInterpretation,
+  headlineKpis,
+  logisticOddsNotes,
+  logitComparison,
+  methodologyBadges,
+  metricGlossary,
   navItems,
-  oddsRatios,
-  pipeline,
+  pipelineSteps,
   projectSubtitle,
   projectTitle,
+  qualitativeTests,
+  quantitativeTests,
   recommendationPlan,
+  supplementaryVariables,
   targetDistribution,
-  targetStatuses,
-  variableTypes
+  variableFamilies
 } from "./data/projectData.js";
+
+function Logo({ compact = false }) {
+  const [logoOk, setLogoOk] = useState(true);
+
+  if (!logoOk) {
+    return <span className={compact ? "logoFallback compact" : "logoFallback"}>DS</span>;
+  }
+
+  return (
+    <img
+      className={compact ? "projectLogo compact" : "projectLogo"}
+      src="/project-assets/logo.png"
+      alt="Logo du projet"
+      onError={() => setLogoOk(false)}
+    />
+  );
+}
 
 function Sidebar({ activePage, onNavigate }) {
   return (
     <aside className="sidebar" aria-label="Navigation principale">
       <div className="brand">
-        <span className="brandMark">MS</span>
+        <Logo compact />
         <div>
-          <strong>Projet statistique</strong>
-          <span>FAMD & clustering</span>
+          <strong>Dropout dashboard</strong>
+          <span>FAMD reduite + clustering</span>
         </div>
       </div>
 
@@ -45,176 +72,103 @@ function Sidebar({ activePage, onNavigate }) {
   );
 }
 
-function PageShell({ eyebrow, title, intro, contribution, story, message, children }) {
+function PageShell({ eyebrow, title, intro, children, takeaway }) {
   return (
     <section className="page">
-      <header className="pageHeader">
-        <span className="eyebrow">{eyebrow}</span>
-        <h1>{title}</h1>
-        {intro && <p>{intro}</p>}
-        <div className="contribution">
-          <strong>Ce que cette page apporte au projet</strong>
-          <span>{contribution}</span>
+      <header className="pageHeader heroPanel">
+        <div className="heroLogoLine">
+          <Logo />
+          <span className="eyebrow">{eyebrow}</span>
+        </div>
+        <div>
+          <h1>{title}</h1>
+          {intro && <p>{intro}</p>}
         </div>
       </header>
-
-      {story && <StatisticalStory story={story} />}
       {children}
-      <KeyMessageBox>{message}</KeyMessageBox>
+      {takeaway && (
+        <Callout tone="key" title="A retenir">
+          {takeaway}
+        </Callout>
+      )}
     </section>
   );
 }
 
-function SectionIntro({ kicker, title, children }) {
+function SectionIntro({ eyebrow, title, children }) {
   return (
     <div className="sectionIntro">
-      <span>{kicker}</span>
+      <span>{eyebrow}</span>
       <h2>{title}</h2>
       <p>{children}</p>
     </div>
   );
 }
 
-function StatisticalStory({ story }) {
-  const items = [
-    ["Question statistique", story.question],
-    ["Méthode utilisée", story.method],
-    ["Résultat observé", story.result],
-    ["Interprétation", story.interpretation],
-    ["Limite", story.limit]
-  ];
-
+function KpiGrid({ items }) {
   return (
-    <div className="storyGrid">
-      {items.map(([title, text]) => (
-        <InsightCard key={title} title={title} text={text} />
-      ))}
-    </div>
-  );
-}
-
-function InsightCard({ title, text, tone = "default" }) {
-  return (
-    <article className={`insightCard ${tone}`}>
-      <span>{title}</span>
-      <p>{text}</p>
-    </article>
-  );
-}
-
-function MethodCard({ title, text, badge }) {
-  return (
-    <article className="methodCard">
-      {badge && <span className="smallBadge neutral">{badge}</span>}
-      <h3>{title}</h3>
-      <p>{text}</p>
-    </article>
-  );
-}
-
-function MetricCard({ label, value, detail }) {
-  return (
-    <article className="metricCard">
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <p>{detail}</p>
-    </article>
-  );
-}
-
-function MetricGrid({ items }) {
-  return (
-    <div className="metricGrid">
+    <div className="kpiGrid">
       {items.map((item) => (
-        <MetricCard key={item.label} {...item} />
+        <article className="kpiCard" key={item.label}>
+          <span>{item.label}</span>
+          <strong>{item.value}</strong>
+          <p>{item.detail}</p>
+        </article>
       ))}
     </div>
   );
 }
 
-function FigureCard({ figure, featured = false }) {
+function BadgeRow({ items }) {
   return (
-    <article className={featured ? "figureCard featured" : "figureCard"}>
-      <div className="figureHeader">
-        <div>
-          <h3>{figure.title}</h3>
-          {figure.caption && <p>{figure.caption}</p>}
-        </div>
-      </div>
-      <img src={figure.src} alt={figure.title} loading="lazy" />
-      {figure.explanation && (
-        <div className="figureExplanation">
-          <strong>Lecture</strong>
-          <p>{figure.explanation}</p>
-        </div>
-      )}
+    <div className="badgeRow">
+      {items.map((item) => (
+        <span className="badge" key={item}>
+          {item}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function Card({ title, children, tone = "default", badge }) {
+  return (
+    <article className={`card ${tone}`}>
+      {badge && <span className="badge compact">{badge}</span>}
+      <h3>{title}</h3>
+      <div>{children}</div>
     </article>
   );
 }
 
-function FigureGrid({ items }) {
+function Callout({ title, children, tone = "note" }) {
   return (
-    <div className="figureGrid">
-      {items.map((figure) => (
-        <FigureCard figure={figure} key={figure.src} />
-      ))}
-    </div>
-  );
-}
-
-function WarningBox({ title = "Précaution d'interprétation", children }) {
-  return (
-    <aside className="warningBox">
+    <aside className={`callout ${tone}`}>
       <strong>{title}</strong>
       <p>{children}</p>
     </aside>
   );
 }
 
-function KeyMessageBox({ children }) {
+function FigureCard({ figure }) {
   return (
-    <aside className="keyMessage">
-      <span>Message clé</span>
-      <p>{children}</p>
-    </aside>
+    <article className="figureCard">
+      <div className="figureHeader">
+        <h3>{figure.title}</h3>
+        <p>{figure.caption}</p>
+      </div>
+      <img src={figure.src} alt={figure.title} loading="lazy" />
+    </article>
   );
 }
 
-function RiskBadge({ risk }) {
-  const slug = risk
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, "-");
-
-  return <span className={`riskBadge ${slug}`}>{risk}</span>;
-}
-
-function ClusterProfileCard({ cluster }) {
+function FigureGrid({ items, columns = "two" }) {
   return (
-    <article className={cluster.critical ? "clusterCard critical" : "clusterCard"}>
-      <div className="clusterTop">
-        <span>Cluster {cluster.id}</span>
-        <RiskBadge risk={cluster.risk} />
-      </div>
-      <p className="clusterCategory">{cluster.category}</p>
-      <h3>{cluster.name}</h3>
-      <p>{cluster.description}</p>
-      <dl>
-        <div>
-          <dt>Effectif</dt>
-          <dd>{cluster.size}</dd>
-        </div>
-        <div>
-          <dt>Dropout</dt>
-          <dd>{cluster.dropout}</dd>
-        </div>
-        <div>
-          <dt>Graduate</dt>
-          <dd>{cluster.graduate}</dd>
-        </div>
-      </dl>
-    </article>
+    <div className={`figureGrid ${columns}`}>
+      {items.map((figure) => (
+        <FigureCard figure={figure} key={figure.src} />
+      ))}
+    </div>
   );
 }
 
@@ -230,8 +184,8 @@ function SimpleTable({ columns, rows }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={Object.values(row).join("-")}>
+          {rows.map((row, rowIndex) => (
+            <tr key={`${rowIndex}-${Object.values(row).join("-")}`}>
               {columns.map((column) => (
                 <td key={column.key}>{row[column.key]}</td>
               ))}
@@ -243,91 +197,119 @@ function SimpleTable({ columns, rows }) {
   );
 }
 
-function CardGrid({ children, columns = "three" }) {
-  return <div className={`cardGrid ${columns}`}>{children}</div>;
-}
-
-function Timeline() {
+function FilterButtons({ options, active, onChange }) {
   return (
-    <div className="timeline">
-      {pipeline.map((step, index) => (
-        <div className="timelineStep" key={step}>
-          <span>{String(index + 1).padStart(2, "0")}</span>
-          <strong>{step}</strong>
-        </div>
+    <div className="filterBar">
+      {options.map((option) => (
+        <button
+          type="button"
+          key={option}
+          className={active === option ? "filterButton active" : "filterButton"}
+          onClick={() => onChange(option)}
+        >
+          {option}
+        </button>
       ))}
     </div>
   );
 }
 
-function HomePage() {
+function OverviewPage() {
   return (
     <PageShell
       eyebrow="Vue d'ensemble"
       title={projectTitle}
       intro={projectSubtitle}
-      contribution="Elle pose la problématique, le fil conducteur et la logique des méthodes mobilisées."
-      story={{
-        question: "Quels profils étudiants peut-on construire à partir des informations disponibles ?",
-        method: "Chaîne complète : préparation, description, FAMD, clustering et régression logistique complémentaire.",
-        result: "Les resultats sont organises autour de deux profils finaux : risque eleve et majoritaire favorable.",
-        interpretation: "Le projet vise à construire des profils étudiants interprétables, pas seulement à prédire un statut.",
-        limit: "L'interface présente les résultats produits avec R ; elle ne refait pas les calculs statistiques."
-      }}
-      message="Le projet vise à construire des profils étudiants interprétables, pas seulement à prédire un statut."
+      takeaway="La solution principale du dashboard est unique : FAMD principale reduite, puis clustering sur 2 axes avec k = 2."
     >
-      <MetricGrid items={kpis} />
+      <KpiGrid items={headlineKpis} />
+      <BadgeRow items={methodologyBadges} />
 
-      <SectionIntro kicker="Fil conducteur" title="Une soutenance guidée par la question statistique">
-        Le tableau de bord suit la même progression que l'analyse : comprendre les données, réduire
-        leur complexité, former des profils, puis traduire les résultats en recommandations.
+      <div className="marqueeStrip" aria-label="Methodologie finale">
+        <span>Dataset</span>
+        <span>Preparation</span>
+        <span>FAMD reduite</span>
+        <span>Clustering k = 2</span>
+        <span>Logistique precoce/complet</span>
+        <span>Soutenance</span>
+      </div>
+
+      <div className="splitLayout">
+        <Card title="Sujet du projet" tone="accent">
+          <p>
+            Le projet etudie le dataset Predict Students' Dropout and Academic
+            Success afin de construire des profils etudiants lisibles a partir de
+            variables administratives, socio-economiques et academiques.
+          </p>
+        </Card>
+        <Card title="Logique statistique" tone="accent">
+          <p>
+            L'analyse principale est exploratoire : la FAMD reduit l'information
+            multivariee, puis le clustering segmente les etudiants dans l'espace
+            factoriel. La regression logistique est complementaire.
+          </p>
+        </Card>
+      </div>
+
+      <SectionIntro eyebrow="Pipeline" title="De la donnee brute aux profils defendables">
+        Chaque etape a un role precis : preparer les variables, construire un espace
+        factoriel coherent, segmenter les individus, puis valider la lecture avec des
+        tests et des modeles complementaires.
       </SectionIntro>
-      <Timeline />
-
-      <CardGrid columns="two">
-        <InsightCard
-          title="Ce que le projet cherche à comprendre"
-          text="Le projet cherche à repérer des groupes d'étudiants proches par leurs caractéristiques académiques, socio-économiques et administratives."
-        />
-        <InsightCard
-          title="Résultat final attendu"
-          text="Une typologie lisible des profils étudiants, utile pour prioriser les actions et discuter les limites méthodologiques."
-        />
-      </CardGrid>
-
-      <SectionIntro kicker="Méthodes mobilisées" title="Une analyse multivariée, puis une lecture décisionnelle">
-        Chaque méthode apporte une pièce différente : description, projection factorielle,
-        segmentation, puis validation complémentaire par modèle logistique.
-      </SectionIntro>
-      <CardGrid columns="four">
-        {methods.map((method) => (
-          <MethodCard key={method.title} title={method.title} text={method.text} />
+      <div className="timeline">
+        {pipelineSteps.map((step, index) => (
+          <article className="timelineStep" key={step.title}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </article>
         ))}
-      </CardGrid>
+      </div>
+
+      <div className="profileStrip">
+        {clusters.map((cluster) => (
+          <article className={cluster.id === 1 ? "profileTile risk" : "profileTile"} key={cluster.id}>
+            <span>Cluster {cluster.id}</span>
+            <h2>{cluster.name}</h2>
+            <p>{cluster.description}</p>
+            <dl>
+              <div>
+                <dt>Effectif</dt>
+                <dd>{cluster.size}</dd>
+              </div>
+              <div>
+                <dt>Dropout</dt>
+                <dd>{cluster.dropout}</dd>
+              </div>
+              <div>
+                <dt>Graduate</dt>
+                <dd>{cluster.graduate}</dd>
+              </div>
+            </dl>
+          </article>
+        ))}
+      </div>
     </PageShell>
   );
 }
 
-function DatasetPage() {
+function VariablesPage() {
+  const [filter, setFilter] = useState("Toutes");
+  const variableRows = useMemo(() => {
+    if (filter === "Toutes") return activeVariables;
+    return activeVariables.filter((row) => row.type === filter || row.group === filter);
+  }, [filter]);
+
   return (
     <PageShell
-      eyebrow="Données"
-      title="Dataset et variable cible"
-      intro="Le dataset provient de UCI Machine Learning Repository, Predict Students' Dropout and Academic Success."
-      contribution="Elle définit la cible, les types de variables et le rôle de Target dans l'interprétation."
-      story={{
-        question: "Quels statuts étudiants cherche-t-on à comparer ?",
-        method: "Description de Target et des familles de variables présentes dans le dataset.",
-        result: "Target distingue Dropout, Enrolled et Graduate sur 4424 étudiants.",
-        interpretation: "Target sert à interpréter les figures, les axes FAMD et la composition des clusters.",
-        limit: "Target renseigne un statut observé dans ce dataset ; elle ne suffit pas à expliquer seule les trajectoires."
-      }}
-      message="Target est centrale pour lire les profils, mais elle est utilisée comme repère d'interprétation plutôt que comme unique explication."
+      eyebrow="Donnees et variables"
+      title="Typologie statistique et roles dans l'analyse"
+      intro="Le dataset est mixte : certaines variables sont quantitatives, d'autres qualitatives meme lorsqu'elles sont codees par des entiers."
+      takeaway="Le type informatique ne suffit pas : une variable codee par des entiers peut representer des categories et doit alors etre traitee comme qualitative."
     >
       <div className="splitLayout">
-        <FigureCard figure={figures.target} featured />
-        <div className="panel">
-          <h2>Répartition de Target</h2>
+        <FigureCard figure={figures.target} />
+        <Card title="Distribution de Target">
           <SimpleTable
             columns={[
               { key: "target", label: "Statut" },
@@ -336,63 +318,57 @@ function DatasetPage() {
             ]}
             rows={targetDistribution}
           />
-          <p className="caption">Table reprise de 03_a_distribution_target.csv.</p>
-        </div>
+        </Card>
       </div>
 
-      <CardGrid columns="three">
-        {targetStatuses.map((status) => (
-          <InsightCard key={status.title} title={status.title} text={status.text} />
-        ))}
-      </CardGrid>
-
-      <CardGrid columns="two">
-        <InsightCard
-          title="Pourquoi Target est importante ?"
-          text="Elle permet de comparer les profils découverts aux statuts observés et de qualifier les groupes comme favorables, intermédiaires ou à risque."
-        />
-        <InsightCard
-          title="Utilisation dans le projet"
-          text="Target est utilisée pour interpréter les profils, notamment dans la carte des individus FAMD et la composition des clusters."
-        />
-      </CardGrid>
-
-      <SectionIntro kicker="Variables" title="Quatre familles de variables pour lire les profils">
-        Les profils sont construits à partir d'informations académiques, socio-économiques,
-        administratives et économiques, ce qui justifie une méthode adaptée aux données mixtes.
+      <SectionIntro eyebrow="Roles" title="Variables actives, supplementaires et cible illustrative">
+        Les variables actives construisent la FAMD principale reduite. Les variables
+        supplementaires enrichissent la lecture apres calcul. Target reste illustrative
+        et ne construit jamais les axes ni les clusters.
       </SectionIntro>
-      <CardGrid columns="four">
-        {variableTypes.map((type) => (
-          <MethodCard key={type.title} title={type.title} text={type.text} />
+
+      <div className="familyGrid">
+        {variableFamilies.map((family) => (
+          <Card title={family.family} key={family.id} badge={family.role}>
+            <p>{family.explanation}</p>
+            <p className="examples">{family.examples}</p>
+          </Card>
         ))}
-      </CardGrid>
-    </PageShell>
-  );
-}
+      </div>
 
-function DescriptivePage() {
-  return (
-    <PageShell
-      eyebrow="Exploration"
-      title="Analyse descriptive"
-      intro="Les figures académiques comparent les distributions des notes et des unités approuvées selon Target."
-      contribution="Elle montre les premiers contrastes visibles avant de passer à une méthode multivariée."
-      story={{
-        question: "Les variables académiques distinguent-elles les statuts étudiants ?",
-        method: "Comparaison graphique des notes et unités approuvées par statut Target.",
-        result: "Les distributions académiques mettent en évidence des écarts entre Dropout, Enrolled et Graduate.",
-        interpretation: "Les variables académiques semblent structurer fortement les trajectoires observées.",
-        limit: "Une lecture variable par variable ne suffit pas à étudier simultanément toutes les dimensions du dataset."
-      }}
-      message="Les variables académiques différencient nettement les statuts des étudiants et préparent la lecture factorielle."
-    >
-      <FigureGrid items={figures.descriptive} />
+      <Card title="Variables actives de la FAMD principale reduite">
+        <FilterButtons
+          options={["Toutes", "Quantitative", "Qualitative", "Semestre 1", "Socio-administratif"]}
+          active={filter}
+          onChange={setFilter}
+        />
+        <SimpleTable
+          columns={[
+            { key: "variable", label: "Variable" },
+            { key: "type", label: "Type statistique" },
+            { key: "group", label: "Famille" }
+          ]}
+          rows={variableRows}
+        />
+      </Card>
 
-      <WarningBox title="Pourquoi passer à la FAMD ?">
-        L'analyse descriptive est utile pour comprendre chaque variable, mais elle ne suffit pas pour
-        étudier simultanément toutes les variables quantitatives et qualitatives. La FAMD fournit un
-        espace commun pour résumer cette structure.
-      </WarningBox>
+      <Card title="Variables supplementaires principales">
+        <div className="tokenList">
+          {supplementaryVariables.map((variable) => (
+            <span key={variable}>{variable}</span>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Controles automatiques">
+        <SimpleTable
+          columns={[
+            { key: "check", label: "Controle" },
+            { key: "status", label: "Statut" }
+          ]}
+          rows={auditChecks}
+        />
+      </Card>
     </PageShell>
   );
 }
@@ -400,132 +376,148 @@ function DescriptivePage() {
 function FamdPage() {
   return (
     <PageShell
-      eyebrow="Analyse factorielle"
-      title="FAMD"
-      intro="La FAMD principale reduite est mobilisee parce que les donnees combinent variables quantitatives et qualitatives."
-      contribution="Elle reduit la complexite du dataset et fournit l'espace factoriel utilise ensuite pour le clustering principal."
-      story={{
-        question: "Quels axes résument la structure multivariée des profils étudiants ?",
-        method: "FAMD principale reduite sur 11 variables actives, avec Target comme variable illustrative.",
-        result: "Dim 1 se lit surtout comme un axe academique ; Dim 2 complete avec le contexte de parcours.",
-        interpretation: "La structuration principale des profils est d'abord academique, puis liee au contexte de parcours.",
-        limit: "Les deux premieres dimensions ne resument pas toute l'information, ce qui est normal avec des donnees mixtes."
-      }}
-      message="La FAMD principale reduite structure les profils sans utiliser Target comme variable active."
+      eyebrow="FAMD"
+      title="FAMD principale reduite"
+      intro="La FAMD est adaptee parce que l'analyse combine des mesures numeriques et des variables qualitatives."
+      takeaway="Target colore et resume l'interpretation apres calcul ; elle n'est jamais une variable active de la FAMD."
     >
-      <CardGrid columns="three">
-        <MethodCard
-          title="Pourquoi FAMD et pas ACP ou ACM ?"
-          text="L'ACP cible surtout les variables quantitatives, l'ACM les variables qualitatives. La FAMD combine les deux familles dans une même analyse."
-          badge="Données mixtes"
-        />
-        <MethodCard
-          title="Variables actives et variable illustrative"
-          text="Les variables actives construisent les axes. Target est supplémentaire : elle aide à interpréter les profils sans construire les dimensions."
-          badge="Target illustrative"
-        />
-        <MethodCard
-          title="Lecture de l'inertie"
-          text="Dim 1 et Dim 2 résument une partie de l'information. Ce n'est pas une faiblesse en soi : le dataset contient de nombreuses dimensions."
-          badge="Interprétation prudente"
-        />
-      </CardGrid>
+      <KpiGrid items={famdMetrics} />
 
-      <CardGrid columns="two">
-        <InsightCard
-          title="Dim 1 = axe academique"
-          text="Cet axe est associe aux notes et aux unites approuvees du premier semestre. Il oppose les parcours academiques plus solides aux parcours fragiles."
-          tone="strong"
-        />
-        <InsightCard
-          title="Dim 2 = contexte de parcours"
-          text="Cet axe complete la lecture avec les evaluations, l'age a l'inscription, la qualification precedente, la note d'admission et le regime jour/soir."
-          tone="strong"
-        />
-      </CardGrid>
+      <div className="tripleGrid">
+        <Card title="ACP" badge="Quantitatif">
+          <p>Approche adaptee aux variables numeriques, moins adaptee aux codes qualitatifs.</p>
+        </Card>
+        <Card title="ACM" badge="Qualitatif">
+          <p>Approche adaptee aux categories, mais moins directe pour conserver les notes et les comptages.</p>
+        </Card>
+        <Card title="FAMD" badge="Mixte">
+          <p>Compromis coherent : variables quantitatives et qualitatives dans un meme espace factoriel.</p>
+        </Card>
+      </div>
+
+      <div className="splitLayout">
+        {famdAxisReadings.map((axis) => (
+          <Card title={axis.title} tone="accent" key={axis.title}>
+            <p>{axis.text}</p>
+          </Card>
+        ))}
+      </div>
 
       <FigureGrid items={figures.famd} />
 
-      <CardGrid columns="two">
-        <InsightCard
-          title="Comment lire la carte des individus ?"
-          text="Chaque point représente un étudiant. Des points proches indiquent des profils proches dans l'espace factoriel ; Target colore l'interprétation."
-        />
-        <InsightCard
-          title="Comment lire la carte des variables ?"
-          text="Les variables proches d'un axe ou d'une direction contribuent à nommer cette dimension et à comprendre ce qu'elle oppose."
-        />
-      </CardGrid>
+      <Callout title="A retenir pour la soutenance" tone="warning">
+        Une projection 2D ne resume pas toute l'information. Le chevauchement visuel
+        est normal avec des donnees mixtes. Target sert uniquement a interpreter les
+        positions apres calcul.
+      </Callout>
     </PageShell>
   );
 }
 
 function ClusteringPage() {
-  const criticalCluster = useMemo(() => clusters.find((cluster) => cluster.critical), []);
+  const [testView, setTestView] = useState("Quantitatives");
+  const tests = testView === "Quantitatives" ? quantitativeTests : qualitativeTests;
+  const columns =
+    testView === "Quantitatives"
+      ? [
+          { key: "variable", label: "Variable" },
+          { key: "test", label: "Test" },
+          { key: "pValue", label: "p-value" },
+          { key: "reading", label: "Lecture" }
+        ]
+      : [
+          { key: "variable", label: "Variable" },
+          { key: "test", label: "Test" },
+          { key: "pValue", label: "p-value" },
+          { key: "effect", label: "Effet" }
+        ];
 
   return (
     <PageShell
-      eyebrow="Segmentation"
-      title="Clustering k-means"
-      intro="Le clustering est réalisé sur les coordonnées FAMD afin de regrouper les étudiants dans l'espace factoriel."
-      contribution="Elle transforme les coordonnées factorielles en profils étudiants interprétables et actionnables."
-      story={{
-        question: "Peut-on transformer l'espace FAMD en groupes d'étudiants lisibles ?",
-        method: "k-means appliqué sur les coordonnées FAMD.",
-        result: "La solution principale est nb_axes = 2, k = 2, avec une silhouette moyenne de 0,508.",
-        interpretation: "Les clusters distinguent un profil a risque eleve et un profil majoritaire favorable.",
-        limit: "La typologie a deux groupes est robuste et lisible, mais moins detaillee qu'une segmentation exploratoire plus fine."
-      }}
-      message="Le clustering transforme l'espace factoriel en profils étudiants interprétables."
+      eyebrow="Clustering"
+      title="Segmentation sur coordonnees FAMD"
+      intro="Le clustering principal utilise les coordonnees individuelles de la FAMD principale reduite, pas les donnees brutes."
+      takeaway="k = 2 est la seule solution principale affichee et interpretee dans le dashboard."
     >
-      <CardGrid columns="three">
-        <MethodCard
-          title="Pourquoi faire un clustering après la FAMD ?"
-          text="La FAMD réduit et structure l'information. Le clustering exploite ensuite ces coordonnées pour former des groupes plus lisibles."
-          badge="Coordonnées FAMD"
-        />
-        <MethodCard
-          title="Solution principale k = 2"
-          text="k = 2 est retenu avec nb_axes = 2, une silhouette moyenne de 0,508 et une stabilite ARI de 1,00."
-          badge="Deux profils"
-        />
-        <WarningBox title="Lecture exploratoire">
-          La separation des groupes suggere une structure utile, mais elle doit rester descriptive et non causale.
-        </WarningBox>
-      </CardGrid>
+      <KpiGrid
+        items={[
+          { label: "Solution", value: clusteringRecommendation.solution, detail: "apres grille axes-k" },
+          { label: "Silhouette", value: clusteringRecommendation.silhouette, detail: "moyenne de la solution" },
+          { label: "Taille min", value: clusteringRecommendation.minSize, detail: "cluster 1" },
+          { label: "Taille max", value: clusteringRecommendation.maxSize, detail: "cluster 2" },
+          { label: "Stabilite", value: clusteringRecommendation.stability, detail: `ARI ${clusteringRecommendation.ari}` }
+        ]}
+      />
+
+      <div className="tripleGrid">
+        <Card title="Pourquoi sur coordonnees FAMD ?" badge="Distance defendable">
+          <p>Les axes FAMD fournissent un espace numerique coherent pour variables mixtes.</p>
+        </Card>
+        <Card title="K-means" badge="Segmentation">
+          <p>La methode regroupe les individus autour de centres proches dans l'espace factoriel.</p>
+        </Card>
+        <Card title="Silhouette" badge="Validation">
+          <p>Elle mesure si les individus sont plus proches de leur groupe que des autres groupes.</p>
+        </Card>
+      </div>
 
       <FigureGrid items={figures.clustering} />
 
-      {criticalCluster && (
-        <article className="criticalCard">
-          <div>
-            <span>Profil le plus critique</span>
-            <h2>Cluster {criticalCluster.id} : {criticalCluster.name}</h2>
-            <p>{criticalCluster.description}</p>
-          </div>
-          <div className="criticalStats">
-            <strong>{criticalCluster.dropout}</strong>
-            <span>de Dropout</span>
-          </div>
-        </article>
-      )}
-
-      <SectionIntro kicker="Classement" title="Lecture decisionnelle des profils finaux">
-        Les profils ne servent pas seulement à nommer des groupes : ils permettent de prioriser les
-        actions selon le niveau de risque et la composition observée.
+      <SectionIntro eyebrow="Profils" title="Deux profils finaux pour la soutenance">
+        La typologie finale oppose un groupe a risque eleve et un groupe majoritaire
+        favorable. La lecture de Target intervient seulement apres la formation des clusters.
       </SectionIntro>
-      <div className="rankingGrid">
-        <InsightCard title="Profil a risque eleve" text="Cluster 1 : 929 etudiants, 81,5 % de Dropout." tone="danger" />
-        <InsightCard title="Profil majoritaire favorable" text="Cluster 2 : 3495 etudiants, 19,0 % de Dropout et 60,8 % de Graduate." />
-        <InsightCard title="Silhouette" text="La solution principale atteint une silhouette moyenne de 0,508." />
-        <InsightCard title="Stabilite" text="La solution est stable, avec un ARI moyen de 1,00." />
-      </div>
 
-      <div className="clusterGrid">
+      <div className="profileStrip">
         {clusters.map((cluster) => (
-          <ClusterProfileCard cluster={cluster} key={cluster.id} />
+          <article className={cluster.id === 1 ? "profileTile risk" : "profileTile"} key={cluster.id}>
+            <span>Cluster {cluster.id}</span>
+            <h2>{cluster.name}</h2>
+            <p>{cluster.description}</p>
+            <p className="academicNote">{cluster.academicNote}</p>
+            <dl>
+              <div>
+                <dt>Effectif</dt>
+                <dd>{cluster.size}</dd>
+              </div>
+              <div>
+                <dt>Dropout</dt>
+                <dd>{cluster.dropout}</dd>
+              </div>
+              <div>
+                <dt>Graduate</dt>
+                <dd>{cluster.graduate}</dd>
+              </div>
+            </dl>
+          </article>
         ))}
       </div>
+
+      <Card title="Validation statistique">
+        <SimpleTable
+          columns={[
+            { key: "metric", label: "Element" },
+            { key: "value", label: "Valeur" },
+            { key: "reading", label: "Lecture" }
+          ]}
+          rows={clusterValidationRows}
+        />
+      </Card>
+
+      <Card title="Tests de differenciation des clusters">
+        <FilterButtons
+          options={["Quantitatives", "Qualitatives"]}
+          active={testView}
+          onChange={setTestView}
+        />
+        <SimpleTable columns={columns} rows={tests} />
+      </Card>
+
+      <Callout title="Limites du clustering" tone="warning">
+        Le clustering est non supervise et exploratoire. Les groupes indiquent une
+        structure statistique utile, mais ils ne remplacent pas une evaluation individuelle.
+        k = 2 donne une typologie robuste et lisible, mais moins detaillee.
+      </Callout>
     </PageShell>
   );
 }
@@ -533,134 +525,137 @@ function ClusteringPage() {
 function LogisticPage() {
   return (
     <PageShell
-      eyebrow="Modélisation complémentaire"
-      title="Régression logistique"
-      intro="La régression logistique complète la typologie avec une cible binaire : Dropout vs Non_Dropout."
-      contribution="Elle vérifie la cohérence des associations observées avec un modèle de classification."
-      story={{
-        question: "Quels facteurs sont associés au risque binaire Dropout vs Non_Dropout ?",
-        method: "Régression logistique et lecture prudente des métriques et odds ratios.",
-        result: "Le modele precoce atteint accuracy 0,849, recall Dropout 0,716 et AUC 0,884 ; le modele complet atteint 0,865, 0,747 et 0,909.",
-        interpretation: "Les resultats sont coherents avec l'importance des dimensions academiques et administratives.",
-        limit: "Les odds ratios indiquent des associations conditionnelles dans le modèle, pas des relations causales."
-      }}
-      message="La regression logistique reste complementaire : le modele complet est plus performant, mais plus tardif."
+      eyebrow="Regression logistique"
+      title="Modeles complementaires : precoce et complet"
+      intro="La regression logistique compare Dropout a Non_Dropout. Elle complete l'analyse principale sans remplacer la FAMD ni le clustering."
+      takeaway="Le modele complet est plus performant, mais le modele precoce est plus utile pour une logique d'alerte."
     >
-      <CardGrid columns="two">
-        <MethodCard
-          title="Pourquoi une régression logistique complémentaire ?"
-          text="Elle ne remplace pas le clustering : elle apporte une lecture supervisée du risque Dropout vs Non_Dropout."
-          badge="Complément"
-        />
-        <WarningBox>
-          Les odds ratios indiquent des associations conditionnelles dans le modèle. Ils ne doivent pas être lus comme des relations causales.
-        </WarningBox>
-      </CardGrid>
-
-      <MetricGrid items={logitMetrics.map((metric) => ({ ...metric, detail: metric.measure }))} />
-
-      <SectionIntro kicker="Métriques" title="Comment lire les performances du modèle ?">
-        Les métriques ne racontent pas la même chose : certaines évaluent la performance globale,
-        d'autres ciblent spécifiquement la classe Dropout.
-      </SectionIntro>
       <SimpleTable
         columns={[
-          { key: "label", label: "Métrique" },
-          { key: "measure", label: "Ce que cela mesure" },
-          { key: "interpretation", label: "Interprétation dans le projet" }
+          { key: "model", label: "Modele" },
+          { key: "inputs", label: "Variables" },
+          { key: "accuracy", label: "Accuracy" },
+          { key: "recall", label: "Recall Dropout" },
+          { key: "f1", label: "F1 Dropout" },
+          { key: "auc", label: "AUC" },
+          { key: "reading", label: "Lecture" }
         ]}
-        rows={logitMetrics}
+        rows={logitComparison}
       />
 
+      <FigureGrid items={figures.logit} />
+
       <div className="splitLayout">
-        <FigureCard figure={figures.logit} featured />
-        <div className="panel">
-          <h2>Odds ratios importants</h2>
-          <p>
-            Les variables suivantes sont affichées avec une interprétation prudente. Les badges
-            indiquent le sens de l'association dans le modèle.
-          </p>
+        <Card title="Comment lire les metriques ?">
           <SimpleTable
             columns={[
-              { key: "variable", label: "Variable" },
-              { key: "oddsRatio", label: "Odds ratio" },
-              { key: "badgeNode", label: "Lecture" },
-              { key: "interpretation", label: "Interprétation prudente" }
+              { key: "metric", label: "Metrique" },
+              { key: "meaning", label: "Signification" }
             ]}
-            rows={oddsRatios.map((item) => ({
-              ...item,
-              badgeNode: <span className={`smallBadge ${item.tone}`}>{item.badge}</span>
-            }))}
+            rows={metricGlossary}
           />
-        </div>
+        </Card>
+        <Card title="Lecture des odds ratios" tone="accent">
+          <ul>
+            {logisticOddsNotes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </Card>
       </div>
     </PageShell>
   );
 }
 
-function RecommendationsPage() {
+function InterpretationPage() {
   return (
     <PageShell
-      eyebrow="Décision"
-      title="Synthèse et recommandations"
-      intro="Les résultats sont traduits en pistes d'action pour une lecture opérationnelle des profils étudiants."
-      contribution="Elle relie les résultats observés aux recommandations et aux limites méthodologiques."
-      story={{
-        question: "Comment transformer les résultats statistiques en priorités d'action ?",
-        method: "Synthèse des axes FAMD, des clusters, de la régression logistique et des limites.",
-        result: "La solution finale distingue le cluster 1 a risque eleve et le cluster 2 majoritaire favorable.",
-        interpretation: "Les actions doivent cibler le suivi academique precoce et les fragilites administratives.",
-        limit: "Les recommandations doivent être validées sur d'autres cohortes avant généralisation."
-      }}
-      message="L'analyse permet de prioriser les profils les plus exposés tout en conservant une lecture exploratoire et prudente."
+      eyebrow="Interpretation finale"
+      title="Relier FAMD, clustering et modeles"
+      intro="Cette synthese rassemble les resultats principaux dans une lecture pedagogique pour la soutenance."
+      takeaway="Le projet reste une analyse statistique descriptive et exploratoire fondee sur des associations observees."
     >
-      <SectionIntro kicker="Plan d'action" title="Résultat observé → interprétation → action recommandée">
-        Cette grille transforme les résultats en décisions possibles, sans dépasser ce que les
-        données permettent d'affirmer.
-      </SectionIntro>
-      <SimpleTable
-        columns={[
-          { key: "result", label: "Résultat observé" },
-          { key: "interpretation", label: "Interprétation" },
-          { key: "action", label: "Action recommandée" }
-        ]}
-        rows={recommendationPlan}
-      />
+      <div className="familyGrid">
+        {finalInterpretation.map((item) => (
+          <Card title={item.title} key={item.title} tone="accent">
+            <p>{item.text}</p>
+          </Card>
+        ))}
+      </div>
 
-      <CardGrid columns="two">
-        <div className="panel">
-          <h2>Limites méthodologiques</h2>
-          <ul>
-            {limits.map((limit) => (
-              <li key={limit}>{limit}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="panel accentPanel">
-          <h2>Conclusion opérationnelle</h2>
-          <p>
-            Le tableau de bord suggère une priorisation des actions : repérer tôt les fragilités
-            académiques, surveiller les contraintes financières, puis concentrer l'accompagnement
-            sur le profil a risque eleve, le cluster 1.
-          </p>
-        </div>
-      </CardGrid>
+      <Card title="Plan d'action statistique">
+        <SimpleTable
+          columns={[
+            { key: "result", label: "Resultat" },
+            { key: "interpretation", label: "Interpretation" },
+            { key: "action", label: "Usage possible" }
+          ]}
+          rows={recommendationPlan}
+        />
+      </Card>
+
+      <Callout title="Formulation prudente" tone="warning">
+        Dans la soutenance, privilegier les formulations : suggere, est associe a,
+        met en evidence, indique, interpretation exploratoire.
+      </Callout>
     </PageShell>
   );
 }
 
-const pageComponents = {
-  accueil: <HomePage />,
-  dataset: <DatasetPage />,
-  descriptive: <DescriptivePage />,
+function DefensePage() {
+  const [query, setQuery] = useState("");
+  const filteredQuestions = useMemo(() => {
+    const cleanQuery = query.trim().toLowerCase();
+    if (!cleanQuery) return defenseQuestions;
+    return defenseQuestions.filter(
+      (item) =>
+        item.question.toLowerCase().includes(cleanQuery) ||
+        item.answer.toLowerCase().includes(cleanQuery)
+    );
+  }, [query]);
+
+  return (
+    <PageShell
+      eyebrow="Preparation soutenance"
+      title="Questions frequentes et reponses courtes"
+      intro="Cette section aide a defendre les choix statistiques sans surinterpreter les resultats."
+      takeaway="Le meilleur fil de reponse : donnees mixtes, FAMD reduite, clustering sur coordonnees FAMD, puis lecture complementaire par logistique."
+    >
+      <div className="searchBox">
+        <label htmlFor="faq-search">Filtrer les questions</label>
+        <input
+          id="faq-search"
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Exemple : FAMD, target, k = 2, silhouette..."
+        />
+      </div>
+
+      <div className="faqList">
+        {filteredQuestions.map((item) => (
+          <details key={item.question} open={query.length > 0}>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    </PageShell>
+  );
+}
+
+const pages = {
+  overview: <OverviewPage />,
+  variables: <VariablesPage />,
   famd: <FamdPage />,
   clustering: <ClusteringPage />,
   logit: <LogisticPage />,
-  recommandations: <RecommendationsPage />
+  interpretation: <InterpretationPage />,
+  defense: <DefensePage />
 };
 
 export default function App() {
-  const [activePage, setActivePage] = useState("accueil");
+  const [activePage, setActivePage] = useState("overview");
   const currentIndex = navItems.findIndex((item) => item.id === activePage);
 
   function navigateTo(pageId) {
@@ -670,27 +665,36 @@ export default function App() {
 
   function goTo(offset) {
     const nextItem = navItems[currentIndex + offset];
-    if (nextItem) {
-      navigateTo(nextItem.id);
-    }
+    if (nextItem) navigateTo(nextItem.id);
   }
 
   return (
     <div className="app">
       <Sidebar activePage={activePage} onNavigate={navigateTo} />
       <main className="content">
-        {pageComponents[activePage]}
+        {pages[activePage]}
         <div className="pager">
           <button type="button" onClick={() => goTo(-1)} disabled={currentIndex === 0}>
-            Précédent
+            Precedent
           </button>
           <span>
             {currentIndex + 1} / {navItems.length}
           </span>
-          <button type="button" onClick={() => goTo(1)} disabled={currentIndex === navItems.length - 1}>
+          <button
+            type="button"
+            onClick={() => goTo(1)}
+            disabled={currentIndex === navItems.length - 1}
+          >
             Suivant
           </button>
         </div>
+        <footer className="appFooter">
+          <Logo compact />
+          <div>
+            <strong>Projet methodes statistiques</strong>
+            <span>FAMD principale reduite - clustering principal nb_axes = 2, k = 2.</span>
+          </div>
+        </footer>
       </main>
     </div>
   );
