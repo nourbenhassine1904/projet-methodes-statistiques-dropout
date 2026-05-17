@@ -379,7 +379,6 @@ function FamdPage() {
       eyebrow="FAMD"
       title="FAMD principale reduite"
       intro="La FAMD est adaptee parce que l'analyse combine des mesures numeriques et des variables qualitatives."
-      takeaway="Target colore et resume l'interpretation apres calcul ; elle n'est jamais une variable active de la FAMD."
     >
       <KpiGrid items={famdMetrics} />
 
@@ -404,12 +403,6 @@ function FamdPage() {
       </div>
 
       <FigureGrid items={figures.famd} />
-
-      <Callout title="A retenir pour la soutenance" tone="warning">
-        Une projection 2D ne resume pas toute l'information. Le chevauchement visuel
-        est normal avec des donnees mixtes. Target sert uniquement a interpreter les
-        positions apres calcul.
-      </Callout>
     </PageShell>
   );
 }
@@ -573,7 +566,6 @@ function InterpretationPage() {
       eyebrow="Interpretation finale"
       title="Relier FAMD, clustering et modeles"
       intro="Cette synthese rassemble les resultats principaux dans une lecture pedagogique pour la soutenance."
-      takeaway="Le projet reste une analyse statistique descriptive et exploratoire fondee sur des associations observees."
     >
       <div className="familyGrid">
         {finalInterpretation.map((item) => (
@@ -594,10 +586,6 @@ function InterpretationPage() {
         />
       </Card>
 
-      <Callout title="Formulation prudente" tone="warning">
-        Dans la soutenance, privilegier les formulations : suggere, est associe a,
-        met en evidence, indique, interpretation exploratoire.
-      </Callout>
     </PageShell>
   );
 }
@@ -619,7 +607,6 @@ function DefensePage() {
       eyebrow="Preparation soutenance"
       title="Questions frequentes et reponses courtes"
       intro="Cette section aide a defendre les choix statistiques sans surinterpreter les resultats."
-      takeaway="Le meilleur fil de reponse : donnees mixtes, FAMD reduite, clustering sur coordonnees FAMD, puis lecture complementaire par logistique."
     >
       <div className="searchBox">
         <label htmlFor="faq-search">Filtrer les questions</label>
