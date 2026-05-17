@@ -1,0 +1,6 @@
+analyse,nb_axes,k,inertie_intra_totale,silhouette_moyenne,taille_min_cluster,taille_max_cluster,ratio_taille_max_min
+segmentation precoce sans variables du 2e semestre,3,2,22519.203273102015,0.3553028854815179,1260,3164,2.511111111111111
+segmentation precoce sans variables du 2e semestre,3,3,17438.50438893277,0.39684447619836577,785,2841,3.619108280254777
+segmentation precoce sans variables du 2e semestre,3,4,14334.17332987678,0.40412753766498155,268,2780,10.373134328358208
+segmentation precoce sans variables du 2e semestre,3,5,11306.849252797445,0.3551488473987671,253,2208,8.727272727272727
+segmentation precoce sans variables du 2e semestre,3,6,10032.764904857426,0.27606624136470725,252,1354,5.373015873015873

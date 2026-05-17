@@ -1,7 +1,4 @@
 cluster_kmeans,nom_profil,effectif,proportion_dropout,proportion_enrolled,proportion_graduate,interpretation_synthetique,niveau_risque
-1,Profil fragile a risque academique,74,64.86,17.57,17.57,Petit groupe avec forte proportion de Dropout et faibles performances academiques.,Eleve
-2,Profil performant a forte reussite,619,18.26,17.12,64.62,"Groupe avec forte proportion de Graduate, note d'admission elevee et bonnes performances academiques.",Faible
-3,Profil stable majoritaire,2158,14.97,20.67,64.37,Groupe majoritaire avec forte proportion de Graduate et situation globale stable.,Faible
-4,Profil critique de decrochage,619,79.48,9.21,11.31,"Groupe avec tres forte proportion de Dropout, tres faibles unites approuvees et notes tres faibles.",Tres eleve
-5,Profil intermediaire en transition,585,36.58,16.24,47.18,"Groupe intermediaire combinant reussite, inscription en cours et risque de Dropout non negligeable.",Modere
-6,Profil a risque eleve,369,62.6,20.87,16.53,Groupe avec forte proportion de Dropout et profil academique a surveiller.,Eleve
+1,Profil majoritaire favorable,3188,0.18130489335006272,0.2107904642409034,0.6079046424090339,Dropout: 18.1%; Graduate: 60.8%; indicateurs academiques proches de la moyenne des clusters; Target utilisee uniquement apres clustering pour interpreter ce profil.,Faible
+2,Profil adulte/atypique plutôt favorable,300,0.24333333333333335,0.13,0.6266666666666667,Dropout: 24.3%; Graduate: 62.7%; indicateurs academiques au-dessus de la moyenne des clusters; Target utilisee uniquement apres clustering pour interpreter ce profil.,Faible à modéré
+3,Profil à risque élevé de décrochage,936,0.8226495726495726,0.08867521367521368,0.08867521367521368,Dropout: 82.3%; Graduate: 8.9%; indicateurs academiques en dessous de la moyenne des clusters; Target utilisee uniquement apres clustering pour interpreter ce profil.,Très élevé

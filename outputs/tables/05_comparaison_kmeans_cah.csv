@@ -1,0 +1,3 @@
+methode,nombre_de_clusters,composition_generale,interet,limite
+k-means,3,1: Graduate (61%) | 2: Graduate (63%) | 3: Dropout (82%),"Solution principale : reproductible, lisible et appliquee aux coordonnees FAMD retenues.","Depend du choix de k et peut produire des frontieres sensibles aux centres initiaux, limite attenuee par nstart = 50."
+CAH Ward,3,1: Dropout (82%) | 2: Graduate (59%) | 3: Graduate (66%),Validation complementaire : visualise une structure hierarchique sur la meme distance FAMD.,Lecture du dendrogramme parfois subjective et moins directe pour affecter de nouveaux individus.

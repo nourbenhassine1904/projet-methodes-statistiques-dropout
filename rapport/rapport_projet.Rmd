@@ -144,14 +144,23 @@ dictionnaire <- read_csv_safe("02_dictionnaire_variables.csv")
 target_distribution <- read_csv_safe("03_a_distribution_target.csv")
 resume_academique <- read_csv_safe("03_d_resume_academique_par_target.csv")
 resume_contexte <- read_csv_safe("03_e_resume_contexte_economique_par_target.csv")
-famd_eigen <- read_csv_safe("04_famd_valeurs_propres.csv")
-famd_contrib <- read_csv_safe("04_famd_contributions_axes_1_2.csv")
-famd_variables <- read_csv_safe("04_famd_variables_actives.csv")
+typologie_variables <- read_csv_safe("08_typologie_variables.csv")
+audit_zeros_academiques <- read_csv_safe("08_audit_zeros_academiques.csv")
+coherence_zeros_notes <- read_csv_safe("08_coherence_zeros_notes.csv")
+famd_comparaison <- read_csv_safe("04_comparaison_famd_globale_precoce.csv")
+famd_globale_eigen <- read_csv_safe("04_globale_famd_valeurs_propres.csv")
+famd_precoce_eigen <- read_csv_safe("04_precoce_famd_valeurs_propres.csv")
+famd_globale_contrib <- read_csv_safe("04_globale_famd_contributions_axes_1_2.csv")
+famd_precoce_contrib <- read_csv_safe("04_precoce_famd_contributions_axes_1_2.csv")
+famd_variables_globales <- read_csv_safe("04_globale_famd_variables_actives.csv")
+famd_variables_precoces <- read_csv_safe("04_precoce_famd_variables_actives.csv")
 k_recommande <- read_csv_safe("05_k_recommande.csv")
-silhouette <- read_csv_safe("05_kmeans_silhouette.csv")
-profils_clusters <- read_csv_safe("05_profils_clusters_kmeans.csv")
+recommandation_clustering <- read_csv_safe("05_recommandation_solution_clustering.csv")
+comparaison_solutions_clustering <- read_csv_safe("05_comparaison_solutions_candidates.csv")
 profils_interpretes <- read_csv_safe("05_profils_clusters_interpretes.csv")
 croisement_cluster_target <- read_csv_safe("05_croisement_cluster_target.csv")
+silhouette_par_cluster <- read_csv_safe("05_silhouette_par_cluster.csv")
+messages_cles_clustering <- read_csv_safe("05_messages_cles_clustering.csv")
 metriques_logit <- read_csv_safe("06_metriques_logit.csv")
 metriques_detaillees_logit <- read_csv_safe("06_metriques_detaillees_logit.csv")
 matrice_confusion_logit <- read_csv_safe("06_matrice_confusion.csv")
@@ -171,15 +180,23 @@ if (length(pct_dropout) == 0) pct_dropout <- NA
 if (length(pct_enrolled) == 0) pct_enrolled <- NA
 if (length(pct_graduate) == 0) pct_graduate <- NA
 
-inertie_dim1 <- famd_eigen |> filter(axe == "Dim.1") |> pull(variance.percent)
-inertie_dim2 <- famd_eigen |> filter(axe == "Dim.2") |> pull(variance.percent)
-inertie_dim5 <- famd_eigen |> filter(axe == "Dim.5") |> pull(cumulative.variance.percent)
+inertie_dim1 <- famd_globale_eigen |> filter(axe == "Dim.1") |> pull(variance.percent)
+inertie_dim2 <- famd_globale_eigen |> filter(axe == "Dim.2") |> pull(variance.percent)
+inertie_dim5 <- famd_globale_eigen |> filter(axe == "Dim.5") |> pull(cumulative.variance.percent)
 if (length(inertie_dim1) == 0) inertie_dim1 <- NA
 if (length(inertie_dim2) == 0) inertie_dim2 <- NA
 if (length(inertie_dim5) == 0) inertie_dim5 <- NA
 
 k_final <- k_recommande |> pull(k_recommande)
 if (length(k_final) == 0) k_final <- NA
+
+nb_axes_final <- k_recommande |> pull(nb_axes_retenus)
+if (length(nb_axes_final) == 0) nb_axes_final <- NA
+
+silhouette_finale <- comparaison_solutions_clustering |>
+  filter(k == k_final, nb_axes == nb_axes_final) |>
+  pull(silhouette_moyenne)
+if (length(silhouette_finale) == 0) silhouette_finale <- NA
 
 # Lecture robuste des métriques détaillées du modèle logistique
 metriques_detaillees_logit <- read_csv_safe(
@@ -297,11 +314,94 @@ Aucune valeur manquante n'a été détectée dans le dataset. La préparation a 
 
 Certaines variables comme `gender`, `debtor`, `tuition_fees_up_to_date`, `scholarship_holder`, `displaced` ou `international` sont des variables qualitatives binaires. Même si elles sont codées par 0 et 1 dans le fichier d'origine, elles ont été converties en facteurs afin d'éviter une interprétation numérique incorrecte.
 
+## Qualité des données, valeurs atypiques et normalisation
+
+L'audit initial indique une absence de valeurs manquantes dans le dataset. La préparation a donc surtout consisté à vérifier la cohérence des variables et à adapter leur typage statistique. Les zéros académiques ont fait l'objet d'une vérification spécifique : une note nulle ou un nombre nul d'unités approuvées ne sont pas automatiquement des erreurs. Dans plusieurs cas, ces valeurs indiquent plutôt une absence de validation ou un parcours académique très fragile.
+
+Les valeurs atypiques ne sont pas supprimées automatiquement, car elles peuvent représenter des parcours étudiants réels : étudiants plus âgés, trajectoires administratives particulières, difficultés académiques fortes ou situations économiques spécifiques. Les exclure sans justification pourrait retirer une partie utile de l'information.
+
+Les variables qualitatives codées numériquement ont été converties en facteurs afin de respecter leur rôle statistique. La FAMD traite ensuite les variables mixtes dans un cadre adapté, sans imposer une lecture purement numérique aux modalités qualitatives. Enfin, le clustering est réalisé sur les coordonnées FAMD et non sur les données brutes, ce qui limite les problèmes liés aux échelles initiales des variables.
+
 ```{r table-dictionnaire}
 dictionnaire |>
   select(variable, bloc, role, classe, nb_modalites) |>
   head(20) |>
   show_table("Extrait du dictionnaire des variables")
+```
+
+# Justification du choix de la FAMD
+
+Le dataset contient des variables mixtes au sens statistique : des mesures quantitatives, des variables qualitatives nominales, des variables qualitatives binaires et des variables creees pour des besoins d'interpretation. Il faut distinguer le **type informatique** du **type statistique**. Le type informatique indique la maniere dont R stocke une variable (`integer`, `numeric`, `factor`, etc.). Le type statistique indique ce que represente la variable dans l'analyse : une mesure, un comptage, une categorie nominale ou une modalite binaire.
+
+Ainsi, une variable peut etre codee par des entiers dans le fichier brut sans etre quantitative. Par exemple, un code de formation, un statut marital, un genre ou un mode d'inscription sont des categories. Les valeurs 1, 2 ou 3 ne representent pas une echelle numerique continue : les ecarts entre codes n'ont pas de signification metrique directe. Les traiter comme des nombres actifs dans une ACP reviendrait a introduire une distance artificielle entre modalites.
+
+L'ACP seule n'est donc pas adaptee, car elle suppose des variables quantitatives et des distances euclidiennes sur des mesures comparables. L'ACM seule n'est pas adaptee non plus, car elle transformerait toutes les variables en modalites qualitatives et ferait perdre une partie de l'information numerique contenue dans les notes, les nombres d'unites, l'age ou les indicateurs economiques. La FAMD est coherente avec le cours, car elle combine le principe de l'ACP pour les variables quantitatives et celui de l'ACM pour les variables qualitatives, en equilibrant leur contribution dans un meme espace factoriel.
+
+Dans cette analyse, `target` reste une variable illustrative : elle aide a lire les resultats, mais ne construit jamais les axes. Les variables `dropout_binary` et `success_binary`, creees a partir de `target`, sont exclues des analyses factorielles principales et du clustering pour eviter une fuite d'information.
+
+# Typologie des variables
+
+Le script d'audit technique a produit une typologie qui separe les variables selon leur role statistique et leur role recommande dans l'analyse.
+
+```{r table-typologie-synthese}
+typologie_variables |>
+  count(type_statistique_recommande, role_recommande, name = "nb_variables") |>
+  arrange(type_statistique_recommande, role_recommande) |>
+  show_table("Synthese de la typologie statistique des variables")
+```
+
+```{r table-typologie-extrait}
+typologie_variables |>
+  select(nom_variable, classe_R, type_statistique_recommande, famille, role_recommande) |>
+  arrange(role_recommande, type_statistique_recommande, nom_variable) |>
+  head(25) |>
+  show_table("Extrait de la typologie des variables")
+```
+
+Cette typologie met en evidence quatre familles importantes pour le rapport :
+
+- les variables **quantitatives**, comme les notes, l'age, les nombres d'unites ou les indicateurs economiques ;
+- les variables **qualitatives nominales**, souvent codees par des entiers dans les donnees brutes mais representant des categories ;
+- les variables **qualitatives binaires**, comme `debtor`, `scholarship_holder`, `displaced`, `international` ou `tuition_fees_up_to_date` ;
+- les variables creees ou derivees de la cible, notamment `dropout_binary` et `success_binary`, qui doivent rester exclues des analyses factorielles principales.
+
+Le rôle `active_famd_possible` signifie qu'une variable est statistiquement compatible avec une FAMD. Cela ne signifie pas qu'elle est forcément retenue dans la FAMD finale. Par exemple, certaines variables économiques peuvent être gardées comme variables de contexte ou descriptives, tandis que la FAMD principale privilégie les variables individuelles, administratives et académiques les plus interprétables.
+
+```{r table-variables-exclues}
+typologie_variables |>
+  filter(
+    role_recommande == "cible" |
+      str_detect(role_recommande, "exclue") |
+      nom_variable %in% c("target", "dropout_binary", "success_binary")
+  ) |>
+  select(nom_variable, type_statistique_recommande, role_recommande, commentaire) |>
+  show_table("Variables cibles ou creees a exclure des analyses factorielles principales")
+```
+
+# Dictionnaire synthétique des variables
+
+Le tableau suivant reprend les variables principales avec leur famille, leur type statistique recommandé et leur rôle dans l'analyse. Le dictionnaire complet reste disponible dans les fichiers `outputs/tables/08_typologie_variables.csv` et `outputs/tables/02_dictionnaire_variables.csv`.
+
+```{r table-dictionnaire-synthetique}
+typologie_variables |>
+  mutate(
+    priorite = case_when(
+      role_recommande %in% c("active_famd_possible", "cible", "exclue_famd_principale") ~ 1,
+      famille %in% c("academique", "inscription", "socio_demographique") ~ 2,
+      TRUE ~ 3
+    ),
+    commentaire_court = str_trunc(commentaire, width = 95)
+  ) |>
+  arrange(priorite, famille, nom_variable) |>
+  select(
+    nom_variable,
+    famille,
+    type_statistique = type_statistique_recommande,
+    role_recommande,
+    commentaire_court
+  ) |>
+  head(30) |>
+  show_table("Dictionnaire synthetique des variables principales")
 ```
 
 # Analyse descriptive
@@ -338,6 +438,33 @@ include_fig("03_d_2nd_sem_approved_selon_target.png")
 
 Ces résultats montrent que les variables académiques différencient fortement les trajectoires. Les étudiants diplômés présentent généralement de meilleures notes et un plus grand nombre d'unités approuvées, tandis que les étudiants en décrochage présentent des performances académiques plus faibles.
 
+## Audit des zéros académiques
+
+Les variables académiques contiennent des valeurs nulles, notamment dans les notes et dans le nombre d'unités approuvées. L'audit technique montre que ces zéros ne doivent pas être considérés automatiquement comme des erreurs de saisie. Ils peuvent correspondre à une absence de validation ou à une situation académique très fragile.
+
+```{r table-audit-zeros}
+audit_zeros_academiques |>
+  filter(str_detect(variable, "grade|approved")) |>
+  select(variable, target, effectif_total_target, nombre_zero, pourcentage_zero) |>
+  arrange(variable, desc(pourcentage_zero)) |>
+  show_table("Audit des zeros academiques par Target")
+```
+
+```{r table-coherence-zeros}
+coherence_zeros_notes |>
+  show_table("Coherence technique entre notes nulles et unites approuvees")
+```
+
+```{r fig-zeros-notes, fig.cap="Zeros de notes par Target"}
+include_fig("08_zeros_notes_par_target.png")
+```
+
+```{r fig-zeros-approved, fig.cap="Zeros d'unites approuvees par Target"}
+include_fig("08_zeros_approved_par_target.png")
+```
+
+Les cas les plus importants sont cohérents lorsqu'une note vaut 0 et qu'aucune unité n'est approuvée. L'information est donc statistiquement utile : elle signale une difficulté académique forte, particulièrement visible chez les étudiants `Dropout`. Ces zéros sont conservés comme des informations académiques fortes, et non remplacés par des valeurs manquantes.
+
 ## Variables socio-économiques et administratives
 
 Les variables socio-économiques permettent d'enrichir l'interprétation des profils. Elles ne doivent pas être lues comme des mécanismes explicatifs directs, mais comme des caractéristiques associées à certaines trajectoires.
@@ -364,76 +491,107 @@ include_fig("03_matrice_correlation_variables_numeriques.png")
 
 # Analyse factorielle des données mixtes : FAMD
 
-La FAMD est adaptée lorsque les individus sont décrits à la fois par des variables quantitatives et qualitatives. Dans ce projet, elle permet de réduire la dimension du dataset tout en conservant une lecture conjointe des facteurs académiques, socio-économiques et administratifs.
+Deux FAMD sont produites dans la version technique finale du projet. La **FAMD globale** donne une lecture complète du parcours étudiant, avec les informations individuelles, administratives et académiques des deux semestres. La **FAMD précoce** propose une lecture plus réaliste pour un usage anticipé, car elle exclut les variables du deuxième semestre.
 
-La variable `target` a été utilisée comme variable supplémentaire, aussi appelée variable illustrative. Elle ne participe donc pas à la construction des axes et n'est pas une variable active de la FAMD ; elle sert uniquement à interpréter les positions des individus dans l'espace factoriel.
-
-Certaines variables qualitatives à très forte cardinalité, comme les professions ou qualifications détaillées des parents, n'ont pas été retenues dans la FAMD principale afin de préserver la lisibilité des axes, d'éviter une surreprésentation de modalités rares et de maintenir une interprétation exploitable. Elles peuvent néanmoins être étudiées séparément comme variables contextuelles.
+Dans les deux cas, `target` est utilisée comme variable supplémentaire, aussi appelée variable illustrative. Elle ne participe pas à la construction des axes et n'est pas une variable active de la FAMD. Les variables `dropout_binary` et `success_binary` sont également exclues des variables actives, car elles sont directement dérivées de la cible.
 
 ## Variables actives de la FAMD
 
-```{r table-famd-vars}
-show_table(famd_variables, "Variables actives utilisées dans la FAMD")
+```{r table-famd-comparaison}
+famd_comparaison |>
+  select(
+    analyse,
+    nb_variables_actives,
+    inertie_dim1,
+    inertie_dim2,
+    inertie_cumulee_dim1_dim2,
+    inertie_cumulee_5_axes,
+    usage_recommande
+  ) |>
+  show_table("Comparaison entre FAMD globale et FAMD precoce")
+```
+
+```{r table-famd-vars-globales}
+famd_variables_globales |>
+  select(variable, classe, type_famd, role_famd) |>
+  head(25) |>
+  show_table("Extrait des variables actives de la FAMD globale")
 ```
 
 ## Inertie expliquée
 
-```{r table-eigen}
-famd_eigen |>
+```{r table-eigen-globale}
+famd_globale_eigen |>
   head(10) |>
-  show_table("Valeurs propres et inertie expliquée par les premiers axes")
+  show_table("FAMD globale - valeurs propres et inertie expliquee")
 ```
 
-La Dimension 1 explique environ **`r fmt_pct(inertie_dim1)`** de l'inertie totale, tandis que la Dimension 2 explique environ **`r fmt_pct(inertie_dim2)`**. Les cinq premiers axes expliquent environ **`r fmt_pct(inertie_dim5)`** de l'inertie cumulée.
+```{r table-eigen-precoce}
+famd_precoce_eigen |>
+  head(10) |>
+  show_table("FAMD precoce - valeurs propres et inertie expliquee")
+```
+
+Dans la FAMD globale, la Dimension 1 explique environ **`r fmt_pct(inertie_dim1)`** de l'inertie totale, tandis que la Dimension 2 explique environ **`r fmt_pct(inertie_dim2)`**. Les cinq premiers axes expliquent environ **`r fmt_pct(inertie_dim5)`** de l'inertie cumulée.
 
 Dans une FAMD appliquée à des données mixtes, il est fréquent que l'inertie soit répartie sur plusieurs axes. Le plan factoriel 1-2 reste utile pour visualiser les oppositions principales, tandis que le clustering utilise plusieurs coordonnées factorielles afin de mieux représenter la structure globale des données.
 
-```{r fig-scree, fig.cap="FAMD - éboulis des valeurs propres"}
-include_fig("04_famd_screeplot.png")
+```{r fig-scree-globale, fig.cap="FAMD globale - eboulis des valeurs propres"}
+include_fig("04_globale_famd_screeplot.png")
+```
+
+```{r fig-scree-precoce, fig.cap="FAMD precoce - eboulis des valeurs propres"}
+include_fig("04_precoce_famd_screeplot.png")
 ```
 
 ## Contributions aux axes 1 et 2
 
-```{r table-contrib}
-famd_contrib |>
+```{r table-contrib-globale}
+famd_globale_contrib |>
   arrange(desc(Dim.1)) |>
   head(15) |>
-  show_table("Principales contributions aux axes 1 et 2")
+  show_table("FAMD globale - principales contributions aux axes 1 et 2")
 ```
 
-```{r fig-contrib, fig.cap="FAMD - contributions principales aux axes 1 et 2"}
-include_fig("04_famd_contributions_axes_1_2.png")
+```{r table-contrib-precoce}
+famd_precoce_contrib |>
+  arrange(desc(Dim.1)) |>
+  head(15) |>
+  show_table("FAMD precoce - principales contributions aux axes 1 et 2")
+```
+
+```{r fig-vars-globale, fig.cap="FAMD globale - variables les plus contributives"}
+include_fig("04_globale_famd_variables_top.png")
+```
+
+```{r fig-vars-precoce, fig.cap="FAMD precoce - variables les plus contributives"}
+include_fig("04_precoce_famd_variables_top.png")
 ```
 
 La Dimension 1 est principalement construite par des variables académiques : unités approuvées, unités inscrites, évaluations et notes des deux semestres. Elle peut donc être interprétée comme un **axe académique**, opposant les étudiants avec une bonne progression académique aux étudiants avec une progression plus faible.
 
-La Dimension 2 est davantage liée à des variables socio-administratives : âge à l'inscription, déplacement, frais de scolarité, statut de boursier, régime jour/soir et qualification précédente. Elle peut être interprétée comme un **axe socio-administratif et organisationnel**.
+La Dimension 2 est davantage liée à des variables socio-administratives : âge à l'inscription, déplacement, frais de scolarité, statut de boursier, régime jour/soir et qualification précédente. Elle peut être interprétée comme un **axe socio-administratif et organisationnel**. Dans la FAMD précoce, la lecture reste proche, mais elle se limite aux informations disponibles plus tôt dans le parcours.
 
 ## Cartes factorielles
 
-```{r fig-famd-ind, fig.cap="FAMD - individus colorés selon Target"}
-include_fig("04_famd_individus_target.png")
+```{r fig-barycentres-globale, fig.cap="FAMD globale - barycentres de Target"}
+include_fig("04_globale_famd_barycentres_target.png")
 ```
 
-```{r fig-famd-var, fig.cap="FAMD - carte des variables actives"}
-include_fig("04_famd_variables.png")
+```{r fig-barycentres-precoce, fig.cap="FAMD precoce - barycentres de Target"}
+include_fig("04_precoce_famd_barycentres_target.png")
 ```
 
-La projection des individus montre que `target` est associé à des zones différentes de l'espace factoriel, ce qui suggère que les dimensions issues de la FAMD sont utiles pour interpréter les trajectoires académiques.
+Les barycentres de `target` montrent que les trajectoires finales occupent des zones différentes de l'espace factoriel, mais les deux premiers axes ne résument pas toute l'information. Le chevauchement visuel est donc normal : il indique que les statuts `Dropout`, `Enrolled` et `Graduate` ne sont pas séparés parfaitement dans le plan 1-2, et que l'interprétation doit rester multivariée.
 
 # Clustering sur les coordonnées FAMD
 
-Le clustering a été réalisé sur les coordonnées des individus issues de la FAMD. Cette stratégie permet de segmenter les étudiants à partir d'une représentation synthétique des données, plutôt qu'à partir des variables brutes.
+Le clustering a été réalisé sur les coordonnées individuelles issues de la FAMD globale. Cette stratégie respecte la nature mixte des variables actives : les groupes sont construits dans l'espace factoriel, et non directement sur les variables brutes. La variable `target` n'intervient pas dans la formation des groupes ; elle est utilisée après clustering uniquement pour décrire les profils.
 
-Deux méthodes ont été mobilisées :
+La solution principale finale est **k = `r k_final` sur `r nb_axes_final` axes FAMD**, avec une silhouette moyenne de **`r fmt_num(silhouette_finale, 3)`**. Il s'agit d'un compromis statistique et interprétatif : la solution reste exploratoire, mais elle combine la meilleure silhouette parmi les solutions candidates avec une lecture claire des profils.
 
-- K-means sur les coordonnées FAMD ;
-- classification ascendante hiérarchique avec la méthode de Ward.
-
-Le choix du nombre de clusters a été étudié avec la méthode du coude et la silhouette moyenne.
-
-```{r table-silhouette}
-show_table(silhouette, "Silhouette moyenne selon le nombre de clusters")
+```{r table-k-recommande}
+show_table(k_recommande, "Parametres retenus pour la solution principale")
 ```
 
 ```{r fig-elbow, fig.cap="Méthode du coude pour le choix de k"}
@@ -444,7 +602,23 @@ include_fig("05_methode_coude.png")
 include_fig("05_silhouette_moyenne.png")
 ```
 
-La valeur maximale de silhouette conduit à retenir techniquement **k = `r k_final`**. Ce choix est également conservé parce que les six profils obtenus sont interprétables et suffisamment distincts pour proposer une lecture utile des profils étudiants. La silhouette reste toutefois modérée : le clustering doit donc être interprété comme une segmentation exploratoire, et non comme une partition définitive des étudiants.
+```{r table-comparaison-clustering}
+comparaison_solutions_clustering |>
+  select(solution, nb_axes, k, silhouette_moyenne, taille_min_cluster, taille_max_cluster, avantage, limite, decision_possible) |>
+  show_table("Comparaison des solutions candidates")
+```
+
+La méthode du coude ne donne pas de rupture nette. Dans ce contexte, elle sert de repère visuel, mais ne suffit pas à elle seule pour choisir le nombre de groupes. La comparaison des solutions candidates montre que **k = 3** obtient la meilleure silhouette moyenne parmi les solutions étudiées (`k = 2`, `k = 3`, `k = 6`) tout en restant interprétable.
+
+La solution **k = 2** est conservée comme comparaison secondaire : elle est lisible, mais trop binaire pour décrire la diversité des parcours. La solution **k = 6** est également une comparaison secondaire : elle est plus détaillée, mais sa silhouette est plus faible et elle augmente le risque de surinterprétation de sous-groupes.
+
+La solution principale retenue est donc **k = 3 sur 3 axes FAMD**.
+
+```{r table-recommandation-clustering}
+recommandation_clustering |>
+  select(solution_recommandee, justification_statistique, justification_interpretation, limite, phrase_pour_rapport) |>
+  show_table("Recommandation de la solution de clustering")
+```
 
 ## Visualisation des clusters
 
@@ -456,43 +630,51 @@ include_fig("05_clusters_kmeans_famd.png")
 include_fig("05_composition_clusters_target.png")
 ```
 
+```{r fig-profils-academiques, fig.cap="Profils academiques des clusters"}
+include_fig("05_profils_clusters_academiques.png")
+```
+
 ## Profils interprétés
 
 ```{r table-profils}
 show_table(profils_interpretes, "Profils de clusters interprétés")
 ```
 
-Les clusters peuvent être interprétés comme suit :
+Les trois clusters peuvent être interprétés comme suit :
 
-- **Cluster 1 : profil fragile à risque académique**. Petit groupe avec une forte proportion de `Dropout` et des performances académiques faibles.
-- **Cluster 2 : profil performant à forte réussite**. Groupe associé à une proportion élevée de `Graduate` et à de bonnes performances académiques.
-- **Cluster 3 : profil stable majoritaire**. Groupe principal, globalement stable, avec une forte proportion de `Graduate`.
-- **Cluster 4 : profil critique de décrochage**. Groupe le plus préoccupant, avec une très forte proportion de `Dropout`.
-- **Cluster 5 : profil intermédiaire en transition**. Groupe combinant réussite, poursuite et risque de décrochage.
-- **Cluster 6 : profil à risque élevé**. Groupe avec une forte proportion de `Dropout` et un profil académique à surveiller.
+- **Cluster 1 : profil majoritaire favorable**. Il regroupe **3188 étudiants**, avec **18,1 % de Dropout** et **60,8 % de Graduate**. Ce groupe correspond au profil le plus fréquent et le plus favorable dans la solution retenue.
+- **Cluster 2 : profil adulte/atypique plutôt favorable**. Il regroupe **300 étudiants**, avec **24,3 % de Dropout** et **62,7 % de Graduate**. Ce groupe est plus petit, plus atypique, mais reste globalement associé à une issue favorable.
+- **Cluster 3 : profil à risque élevé de décrochage**. Il regroupe **936 étudiants**, avec **82,3 % de Dropout** et **8,9 % de Graduate**. Il présente les indicateurs académiques les plus fragiles et constitue le groupe prioritaire pour une lecture de risque.
 
 ```{r table-cluster-target}
 show_table(croisement_cluster_target, "Croisement entre clusters et Target")
 ```
 
+```{r table-silhouette-clusters}
+show_table(silhouette_par_cluster, "Silhouette moyenne par cluster")
+```
+
+```{r table-messages-cles-clustering}
+messages_cles_clustering |>
+  select(point_technique, message_pour_rapport) |>
+  show_table("Messages cles pour l'interpretation du clustering")
+```
+
 # Analyse combinée FAMD + clustering + Target
 
-L'analyse combinée permet de relier les dimensions factorielles, les groupes issus du clustering et la variable cible `target`.
+L'analyse combinée relie la réduction de dimension et la segmentation. La FAMD réduit l'information multivariée en axes factoriels interprétables. Dans ce projet, la Dimension 1 est principalement académique : elle est associée aux unités approuvées, aux unités inscrites, aux évaluations et aux notes. La Dimension 2 est plutôt socio-administrative : elle est associée notamment à l'âge à l'inscription, au déplacement, aux frais de scolarité, au régime d'inscription et à la qualification précédente.
 
-La FAMD met en évidence deux lectures principales :
+Le clustering utilise ensuite les coordonnées individuelles issues de la FAMD. Il n'est donc pas réalisé directement sur les données brutes, ce qui évite de mélanger sans traitement préalable des variables numériques et des variables qualitatives codées. La solution principale de clustering est **k = 3 sur 3 axes FAMD**.
 
-1. un **axe académique**, associé aux unités approuvées, aux inscriptions, aux évaluations et aux notes ;
-2. un **axe socio-administratif**, associé à l'âge, au déplacement, aux frais de scolarité, au régime jour/soir et au statut de boursier.
+La variable `target` n'intervient pas dans la construction des clusters. Elle est utilisée uniquement après clustering pour caractériser les profils obtenus et comprendre comment les groupes se différencient selon les statuts `Dropout`, `Enrolled` et `Graduate`.
 
-Le clustering exploite ces coordonnées factorielles pour construire des profils synthétiques. Les clusters 2 et 3 apparaissent comme les profils les plus favorables à la réussite, tandis que les clusters 4, 1 et 6 sont les plus associés au risque de décrochage. Le cluster 5 représente un profil intermédiaire nécessitant une attention spécifique.
-
-Cette combinaison est importante : la FAMD explique les dimensions structurantes, tandis que le clustering transforme ces dimensions en groupes d'étudiants interprétables.
+Les trois profils retenus se lisent ainsi : le **cluster 1** correspond au profil majoritaire favorable, le **cluster 2** correspond à un profil adulte/atypique plutôt favorable, et le **cluster 3** correspond au profil à risque élevé de décrochage. Cette analyse combinée répond donc au lien central du projet : la FAMD met en évidence les dimensions structurantes, puis le clustering transforme ces dimensions en une typologie exploratoire d'étudiants.
 
 # Analyse complémentaire : régression logistique du risque de décrochage
 
 Une régression logistique binaire a été utilisée comme analyse complémentaire. La variable cible est `Dropout` contre `Non_Dropout`, où `Non_Dropout` regroupe les étudiants `Enrolled` et `Graduate`.
 
-Cette modélisation ne constitue pas le cœur du projet, centré sur la FAMD et le clustering. Elle est utilisée comme analyse complémentaire afin d'examiner la cohérence des variables associées au risque de décrochage.
+Cette modélisation ne constitue pas le cœur du projet, centré sur la FAMD et le clustering. Elle est utilisée comme analyse complémentaire afin d'examiner la cohérence des variables associées au risque de décrochage. Elle mesure des associations avec la modalité `Dropout` par rapport à `Non_Dropout`, mais elle ne remplace ni la FAMD, qui décrit la structure multivariée, ni le clustering, qui construit les profils d'étudiants. Son interprétation reste non causale.
 
 ## Performances du modèle
 
@@ -503,6 +685,8 @@ show_table(metriques_detaillees_logit, "Métriques détaillées de la régressio
 Le modèle atteint une accuracy d'environ **`r fmt_pct(100 * accuracy_logit)`**. La précision pour la classe `Dropout` est de **`r fmt_pct(100 * precision_dropout)`**, ce qui signifie que lorsque le modèle prédit un décrochage, cette prédiction est souvent correcte.
 
 Le rappel pour la classe `Dropout` est de **`r fmt_pct(100 * recall_dropout)`** : le modèle détecte donc environ sept cas de décrochage sur dix. Le F1-score de la classe `Dropout` est de **`r fmt_pct(100 * f1_dropout)`**, tandis que la spécificité pour la classe `Non_Dropout` est de **`r fmt_pct(100 * specificity_non_dropout)`**.
+
+Ces métriques sont évaluées sur un jeu de test. Le seuil de prédiction utilisé pour classer un étudiant en `Dropout` est de **0,5** : une probabilité prédite supérieure ou égale à ce seuil est interprétée comme une prédiction de décrochage.
 
 ```{r table-confusion}
 show_table(matrice_confusion_logit, "Matrice de confusion du modèle logistique")
@@ -520,7 +704,7 @@ logit_interpretation_odds_ratios |>
   show_table("Extrait de l'interprétation des odds ratios")
 ```
 
-Les odds ratios doivent être interprétés avec prudence. Ils indiquent des associations statistiques et non des relations explicatives directes. Les variables dont la p-value est élevée doivent être commentées avec une prudence particulière, car leur association avec le décrochage est moins clairement étayée dans ce modèle. Les résultats suggèrent cependant que des variables comme le statut de débiteur, le paiement des frais de scolarité, le statut de boursier, l'âge à l'inscription et les variables académiques du deuxième semestre semblent associées au risque de décrochage.
+Les odds ratios doivent être interprétés avec prudence. Ils indiquent des associations statistiques et non des relations explicatives directes. Les variables avec une p-value supérieure à **0,05** ne doivent pas être interprétées comme clairement associées au décrochage dans ce modèle. Les résultats suggèrent cependant que des variables comme le statut de débiteur, le paiement des frais de scolarité, le statut de boursier, l'âge à l'inscription et les variables académiques du deuxième semestre semblent associées au risque de décrochage.
 
 Ces résultats sont cohérents avec la FAMD et le clustering : les profils les plus associés au décrochage sont également ceux qui présentent des fragilités académiques et socio-administratives.
 
@@ -530,11 +714,11 @@ Ces résultats sont cohérents avec la FAMD et le clustering : les profils les p
 
 1. **Suivi académique précoce** : surveiller rapidement les étudiants ayant peu d'unités approuvées ou des notes faibles dès le premier semestre.
 
-2. **Repérage des profils critiques** : prioriser les clusters 4, 1 et 6, qui présentent les proportions les plus élevées de `Dropout`.
+2. **Repérage du profil à risque élevé** : accorder une attention particulière au cluster 3, qui présente la plus forte proportion de `Dropout` et les indicateurs académiques les plus fragiles.
 
 3. **Accompagnement administratif et financier** : suivre les étudiants présentant des difficultés liées au statut de débiteur ou aux frais de scolarité non à jour.
 
-4. **Soutien ciblé au profil intermédiaire** : accompagner le cluster 5, qui combine réussite possible et risque de décrochage.
+4. **Lecture différenciée des profils favorables** : distinguer le cluster 1, majoritaire et favorable, du cluster 2, plus adulte ou atypique mais plutôt favorable.
 
 5. **Utilisation de la typologie comme outil d'aide à la décision** : les profils peuvent servir à orienter des actions d'accompagnement, mais ils ne doivent pas remplacer une évaluation individuelle.
 
@@ -546,7 +730,9 @@ La première limite concerne l'inertie expliquée par la FAMD. Les deux premiers
 
 La deuxième limite concerne le choix des variables actives. Certaines variables qualitatives très détaillées ont été écartées afin de conserver une FAMD lisible. Ce choix améliore l'interprétation, mais peut réduire une partie de l'information disponible.
 
-La troisième limite concerne le choix du nombre de clusters. Le critère de silhouette recommande k = 6, mais la valeur de silhouette reste modérée. Le choix est donc justifié à la fois par le critère technique et par l'interprétabilité des profils.
+La troisième limite concerne le choix du nombre de clusters. La méthode du coude ne fournit pas de rupture nette. Les solutions `k = 2` et `k = 6` sont conservées comme comparaisons secondaires.
+
+La solution principale **k = 3 sur 3 axes FAMD** est retenue comme compromis statistique et interprétatif : elle obtient la meilleure silhouette moyenne parmi les solutions candidates et reste lisible pour une soutenance.
 
 La quatrième limite concerne l'utilisation de `target`. Dans la FAMD, `target` est une variable supplémentaire ; elle ne construit pas les axes. Dans le clustering, elle sert à interpréter les groupes après leur formation.
 
@@ -554,10 +740,10 @@ Enfin, les recommandations proposées doivent être validées par une analyse co
 
 # Conclusion
 
-Ce projet a permis de construire un pipeline d'analyse statistique complet autour du dataset **Predict Students' Dropout and Academic Success**. Après préparation des données, l'analyse descriptive a montré que les variables académiques différencient fortement les statuts `Dropout`, `Enrolled` et `Graduate`.
+Ce projet a permis de construire un pipeline d'analyse statistique complet autour du dataset **Predict Students' Dropout and Academic Success**. Il combine analyse descriptive, FAMD, clustering et régression logistique complémentaire. Après préparation des données, l'analyse descriptive a montré que les variables académiques différencient fortement les statuts `Dropout`, `Enrolled` et `Graduate`.
 
 La FAMD a mis en évidence deux lectures principales. La Dimension 1 est un axe académique, associé aux unités approuvées, inscrites, évaluées et aux notes des deux semestres. La Dimension 2 est un axe socio-administratif, associé notamment à l'âge, à la qualification précédente, au déplacement, aux frais de scolarité, au régime jour/soir et au statut de boursier.
 
-Le clustering sur les coordonnées FAMD a conduit à six profils. Les clusters 2 et 3 apparaissent comme les profils les plus favorables à la réussite, tandis que les clusters 4, 1 et 6 sont les plus associés au risque de décrochage. Le cluster 5 représente un profil intermédiaire nécessitant une attention spécifique.
+Le clustering sur les coordonnées FAMD a conduit à une solution principale **k = 3 sur 3 axes FAMD**. Cette solution fournit trois profils interprétables : un profil majoritaire favorable, un profil adulte/atypique plutôt favorable et un profil à risque élevé de décrochage.
 
-La régression logistique complémentaire suggère que plusieurs variables académiques et socio-administratives sont associées au risque de décrochage. Une interface Shiny accompagne également le rapport afin de présenter les résultats de manière interactive. L'ensemble des résultats fournit une base claire pour une soutenance et pour des recommandations d'accompagnement ciblées.
+L'audit des zéros académiques indique que ces valeurs sont informatives et cohérentes lorsqu'une note nulle s'accompagne d'aucune unité approuvée. La régression logistique complémentaire suggère que plusieurs variables académiques et socio-administratives sont associées au risque de décrochage, sans remplacer les analyses multivariées principales. L'ensemble des résultats doit être lu avec prudence, car l'analyse reste exploratoire, mais il fournit une base claire pour une soutenance et pour des recommandations d'accompagnement ciblées.

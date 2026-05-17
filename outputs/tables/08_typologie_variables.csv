@@ -1,0 +1,40 @@
+nom_variable,classe_R,type_statistique_recommande,famille,role_recommande,commentaire
+marital_status,factor,qualitative_nominale,socio_demographique,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+application_mode,factor,qualitative_nominale,inscription,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+application_order,numeric,ordinale,inscription,illustrative_possible,Variable conservee pour interpretation technique selon son role recommande.
+course,factor,qualitative_nominale,inscription,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+daytime_evening_attendance,factor,qualitative_binaire,inscription,active_famd_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+previous_qualification,factor,qualitative_nominale,inscription,active_famd_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+previous_qualification_grade,numeric,quantitative,inscription,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+nacionality,factor,qualitative_nominale,socio_demographique,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+mothers_qualification,factor,qualitative_nominale,familiale,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+fathers_qualification,factor,qualitative_nominale,familiale,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+mothers_occupation,factor,qualitative_nominale,familiale,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+fathers_occupation,factor,qualitative_nominale,familiale,illustrative_possible,"Variable issue de codes entiers dans les donnees brutes; malgre un codage integer possible, elle represente des categories qualitatives et non une mesure continue."
+admission_grade,numeric,quantitative,inscription,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+displaced,factor,qualitative_binaire,socio_demographique,active_famd_possible,Variable binaire qualitative; la classe R peut etre factor apres preparation.
+educational_special_needs,factor,qualitative_binaire,socio_demographique,active_famd_possible,Variable binaire qualitative; la classe R peut etre factor apres preparation.
+debtor,factor,qualitative_binaire,socio_economique,active_famd_possible,Variable binaire qualitative; la classe R peut etre factor apres preparation.
+tuition_fees_up_to_date,factor,qualitative_binaire,socio_economique,active_famd_possible,Variable binaire qualitative; la classe R peut etre factor apres preparation.
+gender,factor,qualitative_binaire,socio_demographique,active_famd_possible,Variable binaire qualitative; la classe R peut etre factor apres preparation.
+scholarship_holder,factor,qualitative_binaire,socio_economique,active_famd_possible,Variable binaire qualitative; la classe R peut etre factor apres preparation.
+age_at_enrollment,numeric,quantitative,socio_demographique,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+international,factor,qualitative_binaire,socio_demographique,active_famd_possible,Variable binaire qualitative; la classe R peut etre factor apres preparation.
+curricular_units_1st_sem_credited,numeric,quantitative,academique_s1,illustrative_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_1st_sem_enrolled,numeric,quantitative,academique_s1,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_1st_sem_evaluations,numeric,quantitative,academique_s1,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_1st_sem_approved,numeric,quantitative,academique_s1,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_1st_sem_grade,numeric,quantitative,academique_s1,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_1st_sem_without_evaluations,numeric,quantitative,academique_s1,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_2nd_sem_credited,numeric,quantitative,academique_s2,illustrative_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_2nd_sem_enrolled,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_2nd_sem_evaluations,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_2nd_sem_approved,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_2nd_sem_grade,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+curricular_units_2nd_sem_without_evaluations,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+unemployment_rate,numeric,quantitative,contexte_economique,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+inflation_rate,numeric,quantitative,contexte_economique,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+gdp,numeric,quantitative,contexte_economique,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+target,factor,cible,cible,cible,Variable cible conservee comme illustrative dans la FAMD pour ne pas orienter la construction des axes.
+dropout_binary,factor,variable_creee,variable_creee,exclue_famd_principale,Variable creee a partir de la cible; a exclure de la FAMD principale pour eviter une fuite d'information.
+success_binary,factor,variable_creee,variable_creee,exclue_famd_principale,Variable creee a partir de la cible; a exclure de la FAMD principale pour eviter une fuite d'information.

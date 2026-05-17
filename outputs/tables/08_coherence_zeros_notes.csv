@@ -1,0 +1,19 @@
+controle,target,effectif,interpretation_technique
+grade_1st_sem = 0 et approved_1st_sem = 0,Dropout,570,Cas coherent techniquement : absence de note moyenne au premier semestre avec aucune unite approuvee.
+grade_1st_sem = 0 et approved_1st_sem = 0,Enrolled,71,Cas coherent techniquement : absence de note moyenne au premier semestre avec aucune unite approuvee.
+grade_1st_sem = 0 et approved_1st_sem = 0,Graduate,77,Cas coherent techniquement : absence de note moyenne au premier semestre avec aucune unite approuvee.
+grade_1st_sem = 0 et approved_1st_sem > 0,Dropout,0,Cas atypique a surveiller : des unites sont approuvees alors que la note moyenne du premier semestre vaut zero.
+grade_1st_sem = 0 et approved_1st_sem > 0,Enrolled,0,Cas atypique a surveiller : des unites sont approuvees alors que la note moyenne du premier semestre vaut zero.
+grade_1st_sem = 0 et approved_1st_sem > 0,Graduate,0,Cas atypique a surveiller : des unites sont approuvees alors que la note moyenne du premier semestre vaut zero.
+grade_2nd_sem = 0 et approved_2nd_sem = 0,Dropout,727,Cas coherent techniquement : absence de note moyenne au second semestre avec aucune unite approuvee.
+grade_2nd_sem = 0 et approved_2nd_sem = 0,Enrolled,68,Cas coherent techniquement : absence de note moyenne au second semestre avec aucune unite approuvee.
+grade_2nd_sem = 0 et approved_2nd_sem = 0,Graduate,75,Cas coherent techniquement : absence de note moyenne au second semestre avec aucune unite approuvee.
+grade_2nd_sem = 0 et approved_2nd_sem > 0,Dropout,0,Cas atypique a surveiller : des unites sont approuvees alors que la note moyenne du second semestre vaut zero.
+grade_2nd_sem = 0 et approved_2nd_sem > 0,Enrolled,0,Cas atypique a surveiller : des unites sont approuvees alors que la note moyenne du second semestre vaut zero.
+grade_2nd_sem = 0 et approved_2nd_sem > 0,Graduate,0,Cas atypique a surveiller : des unites sont approuvees alors que la note moyenne du second semestre vaut zero.
+grade_1st_sem > 0 et evaluations_1st_sem = 0,Dropout,0,Cas incoherent attendu rare : une note positive existe alors qu'aucune evaluation du premier semestre n'est enregistree.
+grade_1st_sem > 0 et evaluations_1st_sem = 0,Enrolled,0,Cas incoherent attendu rare : une note positive existe alors qu'aucune evaluation du premier semestre n'est enregistree.
+grade_1st_sem > 0 et evaluations_1st_sem = 0,Graduate,0,Cas incoherent attendu rare : une note positive existe alors qu'aucune evaluation du premier semestre n'est enregistree.
+grade_2nd_sem > 0 et evaluations_2nd_sem = 0,Dropout,0,Cas incoherent attendu rare : une note positive existe alors qu'aucune evaluation du second semestre n'est enregistree.
+grade_2nd_sem > 0 et evaluations_2nd_sem = 0,Enrolled,0,Cas incoherent attendu rare : une note positive existe alors qu'aucune evaluation du second semestre n'est enregistree.
+grade_2nd_sem > 0 et evaluations_2nd_sem = 0,Graduate,0,Cas incoherent attendu rare : une note positive existe alors qu'aucune evaluation du second semestre n'est enregistree.

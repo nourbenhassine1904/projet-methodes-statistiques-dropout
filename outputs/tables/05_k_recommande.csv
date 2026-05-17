@@ -1,2 +1,2 @@
-k_recommande,critere,commentaire
-6,silhouette_moyenne_maximale,Recommendation technique a discuter avec le coude et l'interpretabilite des profils.
+k_recommande,nb_axes_retenus,critere,commentaire
+3,3,compromis silhouette_interpretabilite,k = 3 maximise la silhouette moyenne parmi les solutions candidates et fournit des profils interprétables ; le choix reste exploratoire.
