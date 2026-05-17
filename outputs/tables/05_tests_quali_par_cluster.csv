@@ -1,0 +1,9 @@
+variable,test,statistique,ddl,p_value,cramer_v,interpretation
+daytime_evening_attendance,Khi-deux,27.21454415276205,1,1.8208376868364446e-7,0.07843194282168117,repartition differente selon les clusters
+debtor,Khi-deux,283.793092777027,1,1.1195280640397545e-63,0.25327559911829495,repartition differente selon les clusters
+tuition_fees_up_to_date,Khi-deux,928.5006605858174,1,6.254978198813048e-204,0.45812453310847023,repartition differente selon les clusters
+gender,Khi-deux,240.83656985296076,1,2.5840282236512702e-54,0.23332090773966893,repartition differente selon les clusters
+scholarship_holder,Khi-deux,178.23798986284203,1,1.175300334397982e-40,0.20072089216440656,repartition differente selon les clusters
+course,Khi-deux,749.0984340043597,16,4.525270925338216e-149,0.4114924634417256,repartition differente selon les clusters
+previous_qualification,Khi-deux,167.27477638332843,16,2.9415287187517245e-27,0.19444987568873262,repartition differente selon les clusters
+displaced,Khi-deux,38.76270607264607,1,4.785847543221213e-10,0.09360509424825016,repartition differente selon les clusters

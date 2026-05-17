@@ -1,0 +1,2 @@
+solution_recommandee,nb_axes,k,silhouette_moyenne,inertie_intra_totale,taille_min_cluster,taille_max_cluster,ratio_taille_max_min,interpretabilite_auto,critere,conclusion,commentaire
+"nb_axes = 2, k = 2",2,2,0.5083727680144058,10802.549983394794,929,3495,3.7621097954790095,interpretable,"grille axes-k, silhouette moyenne, taille des clusters et interpretabilite automatique",stable,"Solution recommandee apres recalcul sur la FAMD principale reduite : nb_axes = 2, k = 2. Target est utilisee uniquement apres clustering."

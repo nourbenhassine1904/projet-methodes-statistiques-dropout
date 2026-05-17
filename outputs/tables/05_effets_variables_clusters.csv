@@ -1,0 +1,18 @@
+variable,famille,p_value,effet,mesure_effet,force_statistique
+curricular_units_1st_sem_approved,quantitative,0,NA,non_calcule,tres_marquee
+curricular_units_1st_sem_grade,quantitative,0,NA,non_calcule,tres_marquee
+curricular_units_2nd_sem_approved,quantitative,0,NA,non_calcule,tres_marquee
+curricular_units_2nd_sem_grade,quantitative,0,NA,non_calcule,tres_marquee
+cluster_kmeans_x_target,target,2.2402929621979178e-290,0.5491004769450781,V de Cramer,tres_marquee
+tuition_fees_up_to_date,qualitative,6.254978198813048e-204,0.45812453310847023,V de Cramer,tres_marquee
+course,qualitative,4.525270925338216e-149,0.4114924634417256,V de Cramer,tres_marquee
+curricular_units_1st_sem_evaluations,quantitative,1.2747178771421704e-128,NA,non_calcule,tres_marquee
+debtor,qualitative,1.1195280640397545e-63,0.25327559911829495,V de Cramer,tres_marquee
+gender,qualitative,2.5840282236512702e-54,0.23332090773966893,V de Cramer,tres_marquee
+age_at_enrollment,quantitative,2.859077262367973e-44,NA,non_calcule,tres_marquee
+scholarship_holder,qualitative,1.175300334397982e-40,0.20072089216440656,V de Cramer,tres_marquee
+previous_qualification,qualitative,2.9415287187517245e-27,0.19444987568873262,V de Cramer,tres_marquee
+displaced,qualitative,4.785847543221213e-10,0.09360509424825016,V de Cramer,tres_marquee
+daytime_evening_attendance,qualitative,1.8208376868364446e-7,0.07843194282168117,V de Cramer,tres_marquee
+admission_grade,quantitative,8.068733495026741e-4,NA,non_calcule,tres_marquee
+previous_qualification_grade,quantitative,0.01835174529792641,NA,non_calcule,marquee

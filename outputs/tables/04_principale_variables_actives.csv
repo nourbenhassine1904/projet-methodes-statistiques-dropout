@@ -1,0 +1,12 @@
+variable,role,type_statistique,classe_R,commentaire
+previous_qualification_grade,active,quantitative,numeric,Variable active de la FAMD principale reduite.
+admission_grade,active,quantitative,numeric,Variable active de la FAMD principale reduite.
+age_at_enrollment,active,quantitative,numeric,Variable active de la FAMD principale reduite.
+curricular_units_1st_sem_evaluations,active,quantitative,numeric,Variable active de la FAMD principale reduite.
+curricular_units_1st_sem_approved,active,quantitative,numeric,Variable active de la FAMD principale reduite.
+curricular_units_1st_sem_grade,active,quantitative,numeric,Variable active de la FAMD principale reduite.
+daytime_evening_attendance,active,qualitative,factor,Variable active de la FAMD principale reduite.
+debtor,active,qualitative,factor,Variable active de la FAMD principale reduite.
+tuition_fees_up_to_date,active,qualitative,factor,Variable active de la FAMD principale reduite.
+gender,active,qualitative,factor,Variable active de la FAMD principale reduite.
+scholarship_holder,active,qualitative,factor,Variable active de la FAMD principale reduite.

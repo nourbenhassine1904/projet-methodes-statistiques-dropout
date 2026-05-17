@@ -343,7 +343,7 @@ creer_figure_barycentres <- function(coord_ind, eig_famd, titre) {
     ) +
     ggplot2::labs(
       title = paste0(titre, " - barycentres par Target"),
-      subtitle = "Les barycentres resument une tendance globale; ils ne prouvent pas une separation parfaite.",
+      subtitle = "Les barycentres resument une tendance globale; ils n'indiquent pas une separation parfaite.",
       x = libelle_axe(eig_famd, "Dim.1", "Dim.1"),
       y = libelle_axe(eig_famd, "Dim.2", "Dim.2"),
       color = "Target"
@@ -580,5 +580,271 @@ if (!is.null(resultat_globale$figure_variables)) {
   )
 }
 
-message("FAMD globale et FAMD precoce terminees.")
+# ------------------------------------------------------------
+# FAMD principale reduite : version technique defendable
+# ------------------------------------------------------------
+
+message("Debut de la FAMD principale reduite.")
+
+variables_quanti_principale <- c(
+  "previous_qualification_grade",
+  "admission_grade",
+  "age_at_enrollment",
+  "curricular_units_1st_sem_evaluations",
+  "curricular_units_1st_sem_approved",
+  "curricular_units_1st_sem_grade"
+)
+
+variables_quali_principale <- c(
+  "daytime_evening_attendance",
+  "debtor",
+  "tuition_fees_up_to_date",
+  "gender",
+  "scholarship_holder"
+)
+
+variables_actives_principale <- c(
+  variables_quanti_principale,
+  variables_quali_principale
+)
+
+variables_supplementaires_principale <- c(
+  "target",
+  "course",
+  "curricular_units_2nd_sem_evaluations",
+  "curricular_units_2nd_sem_approved",
+  "curricular_units_2nd_sem_grade",
+  "unemployment_rate",
+  "inflation_rate",
+  "gdp",
+  "application_mode",
+  "application_order",
+  "previous_qualification",
+  "mothers_qualification",
+  "fathers_qualification",
+  "displaced"
+)
+
+variables_exclues_principale <- c(
+  "marital_status",
+  "nacionality",
+  "mothers_occupation",
+  "fathers_occupation",
+  "educational_special_needs",
+  "international",
+  "curricular_units_1st_sem_without_evaluations",
+  "curricular_units_2nd_sem_without_evaluations",
+  "dropout_binary",
+  "success_binary"
+)
+
+variables_semestre_2 <- grep("2nd_sem", names(donnees), value = TRUE)
+variables_economiques <- c("unemployment_rate", "inflation_rate", "gdp")
+
+variables_manquantes_principale <- setdiff(
+  c(variables_actives_principale, variables_supplementaires_principale),
+  names(donnees)
+)
+
+if (length(variables_manquantes_principale) > 0) {
+  stop(
+    "Variables manquantes pour la FAMD principale reduite : ",
+    paste(variables_manquantes_principale, collapse = ", ")
+  )
+}
+
+if ("target" %in% variables_actives_principale) {
+  stop("Controle FAMD principale reduite : target ne doit jamais etre active.")
+}
+
+variables_derivees_actives <- intersect(c("dropout_binary", "success_binary"), variables_actives_principale)
+if (length(variables_derivees_actives) > 0) {
+  stop(
+    "Controle FAMD principale reduite : variables derivees de target actives : ",
+    paste(variables_derivees_actives, collapse = ", ")
+  )
+}
+
+variables_s2_actives <- intersect(variables_semestre_2, variables_actives_principale)
+if (length(variables_s2_actives) > 0) {
+  stop(
+    "Controle FAMD principale reduite : variables du semestre 2 actives : ",
+    paste(variables_s2_actives, collapse = ", ")
+  )
+}
+
+variables_eco_actives <- intersect(variables_economiques, variables_actives_principale)
+if (length(variables_eco_actives) > 0) {
+  stop(
+    "Controle FAMD principale reduite : variables economiques actives : ",
+    paste(variables_eco_actives, collapse = ", ")
+  )
+}
+
+if (length(intersect(variables_exclues_principale, variables_actives_principale)) > 0) {
+  stop("Controle FAMD principale reduite : une variable explicitement exclue est active.")
+}
+
+donnees_famd_principale <- donnees |>
+  dplyr::select(
+    dplyr::all_of(variables_actives_principale),
+    dplyr::all_of(variables_supplementaires_principale)
+  ) |>
+  dplyr::mutate(
+    dplyr::across(dplyr::all_of(c(variables_quali_principale, "target", "course", "application_mode",
+                                  "previous_qualification", "mothers_qualification",
+                                  "fathers_qualification", "displaced")), as.factor),
+    dplyr::across(where(is.character), as.factor)
+  )
+
+indices_supplementaires <- match(variables_supplementaires_principale, names(donnees_famd_principale))
+
+set.seed(123)
+res_famd_principale <- FactoMineR::FAMD(
+  donnees_famd_principale,
+  ncp = min(10, length(variables_actives_principale)),
+  graph = FALSE,
+  sup.var = indices_supplementaires
+)
+
+saveRDS(
+  res_famd_principale,
+  file.path("outputs", "models", "04_resultat_famd_principale_reduite.rds")
+)
+
+table_variables_actives_principale <- tibble::tibble(
+  variable = variables_actives_principale,
+  role = "active",
+  type_statistique = dplyr::case_when(
+    variable %in% variables_quanti_principale ~ "quantitative",
+    variable %in% variables_quali_principale ~ "qualitative",
+    TRUE ~ "non_precise"
+  ),
+  classe_R = purrr::map_chr(donnees_famd_principale[variables_actives_principale], classe_variable),
+  commentaire = "Variable active de la FAMD principale reduite."
+)
+
+table_variables_supp_principale <- tibble::tibble(
+  variable = variables_supplementaires_principale,
+  role = "supplementaire_illustrative",
+  type_statistique = purrr::map_chr(
+    donnees_famd_principale[variables_supplementaires_principale],
+    ~ if (inherits(.x, "factor")) "qualitative" else "quantitative"
+  ),
+  classe_R = purrr::map_chr(
+    donnees_famd_principale[variables_supplementaires_principale],
+    classe_variable
+  ),
+  commentaire = "Variable utilisee uniquement pour l'interpretation, non active."
+)
+
+readr::write_csv(
+  table_variables_actives_principale,
+  file.path("outputs", "tables", "04_principale_variables_actives.csv")
+)
+
+readr::write_csv(
+  table_variables_supp_principale,
+  file.path("outputs", "tables", "04_principale_variables_supplementaires.csv")
+)
+
+eig_principale <- factoextra::get_eigenvalue(res_famd_principale) |>
+  as.data.frame() |>
+  tibble::rownames_to_column("axe")
+
+readr::write_csv(
+  eig_principale,
+  file.path("outputs", "tables", "04_principale_valeurs_propres.csv")
+)
+
+infos_var_principale <- factoextra::get_famd_var(res_famd_principale)
+
+contrib_principale <- infos_var_principale$contrib |>
+  as.data.frame() |>
+  tibble::rownames_to_column("variable") |>
+  dplyr::select("variable", dplyr::any_of(c("Dim.1", "Dim.2"))) |>
+  dplyr::arrange(dplyr::desc(.data[["Dim.1"]]))
+
+cos2_principale <- infos_var_principale$cos2 |>
+  as.data.frame() |>
+  tibble::rownames_to_column("variable") |>
+  dplyr::select("variable", dplyr::any_of(c("Dim.1", "Dim.2"))) |>
+  dplyr::arrange(dplyr::desc(.data[["Dim.1"]]))
+
+readr::write_csv(
+  contrib_principale,
+  file.path("outputs", "tables", "04_principale_contributions_axes_1_2.csv")
+)
+
+readr::write_csv(
+  cos2_principale,
+  file.path("outputs", "tables", "04_principale_cos2_variables_axes_1_2.csv")
+)
+
+coord_ind_principale <- as.data.frame(res_famd_principale$ind$coord) |>
+  tibble::rownames_to_column("id_individu") |>
+  dplyr::bind_cols(tibble::tibble(target = donnees$target))
+
+readr::write_csv(
+  coord_ind_principale,
+  file.path("outputs", "tables", "04_principale_coordonnees_individus.csv")
+)
+
+p_scree_principale <- factoextra::fviz_screeplot(res_famd_principale, addlabels = TRUE) +
+  ggplot2::labs(title = "FAMD principale reduite - eboulis des valeurs propres") +
+  theme_famd()
+
+ggplot2::ggsave(
+  file.path("outputs", "figures", "04_principale_screeplot.png"),
+  p_scree_principale,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
+
+p_ind_principale <- creer_figure_individus(
+  coord_ind_principale,
+  eig_principale,
+  "FAMD principale reduite"
+)
+
+ggplot2::ggsave(
+  file.path("outputs", "figures", "04_principale_individus_target.png"),
+  p_ind_principale,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+p_bary_principale <- creer_figure_barycentres(
+  coord_ind_principale,
+  eig_principale,
+  "FAMD principale reduite"
+)
+
+ggplot2::ggsave(
+  file.path("outputs", "figures", "04_principale_barycentres_target.png"),
+  p_bary_principale,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+p_var_principale <- creer_figure_variables_top(
+  contrib_principale,
+  "FAMD principale reduite"
+)
+
+if (!is.null(p_var_principale)) {
+  ggplot2::ggsave(
+    file.path("outputs", "figures", "04_principale_variables_top.png"),
+    p_var_principale,
+    width = 9,
+    height = 6,
+    dpi = 300
+  )
+}
+
+message("FAMD principale reduite terminee.")
+message("FAMD globale, FAMD precoce et FAMD principale reduite terminees.")
 message("Sorties creees dans outputs/models, outputs/tables et outputs/figures.")

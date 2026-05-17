@@ -1,2 +1,2 @@
 k_recommande,nb_axes_retenus,critere,commentaire
-3,3,compromis silhouette_interpretabilite,k = 3 maximise la silhouette moyenne parmi les solutions candidates et fournit des profils interprétables ; le choix reste exploratoire.
+2,2,recalcul_famd_principale_reduite,"Solution recommandee apres grille axes-k : k = 2, nb_axes = 2, silhouette = 0.508."

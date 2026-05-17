@@ -1,0 +1,13 @@
+controle,statut,detail
+presence fichier outputs/tables/06_comparaison_modeles_logit.csv,OK,Fichier present.
+presence fichier outputs/tables/06_metriques_logit_precoce.csv,OK,Fichier present.
+presence fichier outputs/tables/06_metriques_logit_complet.csv,OK,Fichier present.
+presence fichier outputs/tables/06_odds_ratios_logit_precoce.csv,OK,Fichier present.
+presence fichier outputs/tables/06_odds_ratios_logit_complet.csv,OK,Fichier present.
+presence fichier outputs/figures/06_roc_logit_precoce.png,OK,Fichier present.
+presence fichier outputs/figures/06_roc_logit_complet.png,OK,Fichier present.
+modele precoce disponible,OK,Le modele precoce doit utiliser les variables d'entree et le semestre 1.
+modele complet disponible,OK,Le modele complet doit ajouter les variables du semestre 2.
+validation train/test presente,OK,Les metriques principales sont calculees sur un jeu de test.
+validation croisee simple presente,OK,Une validation croisee simple est resumee dans la comparaison.
+seuil de prediction documente,OK,"Le seuil de classification attendu est 0,5."

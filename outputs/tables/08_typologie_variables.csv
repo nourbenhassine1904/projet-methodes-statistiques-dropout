@@ -32,9 +32,9 @@ curricular_units_2nd_sem_evaluations,numeric,quantitative,academique_s2,active_f
 curricular_units_2nd_sem_approved,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
 curricular_units_2nd_sem_grade,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
 curricular_units_2nd_sem_without_evaluations,numeric,quantitative,academique_s2,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
-unemployment_rate,numeric,quantitative,contexte_economique,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
-inflation_rate,numeric,quantitative,contexte_economique,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
-gdp,numeric,quantitative,contexte_economique,active_famd_possible,Variable numerique interpretable comme mesure ou comptage.
+unemployment_rate,numeric,quantitative,contexte_economique,illustrative_possible,Variable numerique interpretable comme mesure ou comptage.
+inflation_rate,numeric,quantitative,contexte_economique,illustrative_possible,Variable numerique interpretable comme mesure ou comptage.
+gdp,numeric,quantitative,contexte_economique,illustrative_possible,Variable numerique interpretable comme mesure ou comptage.
 target,factor,cible,cible,cible,Variable cible conservee comme illustrative dans la FAMD pour ne pas orienter la construction des axes.
 dropout_binary,factor,variable_creee,variable_creee,exclue_famd_principale,Variable creee a partir de la cible; a exclure de la FAMD principale pour eviter une fuite d'information.
 success_binary,factor,variable_creee,variable_creee,exclue_famd_principale,Variable creee a partir de la cible; a exclure de la FAMD principale pour eviter une fuite d'information.

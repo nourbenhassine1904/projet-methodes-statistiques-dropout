@@ -1,0 +1,2 @@
+variable,test,statistique,ddl,p_value,cramer_v,interpretation
+cluster_kmeans_x_target,Khi-deux,1333.8861406485253,2,2.2402929621979178e-290,0.5491004769450781,target est associee aux clusters apres construction non supervisee

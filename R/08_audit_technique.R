@@ -479,12 +479,12 @@ questions_soutenance_reponses <- tibble::tribble(
   "Pourquoi tester plusieurs k ?",
   "Parce que le nombre de clusters n'est pas connu a l'avance.",
   "Le script 05 compare plusieurs valeurs de k avec le coude et la silhouette. Cette comparaison permet de documenter le choix technique au lieu de fixer arbitrairement un nombre de groupes.",
-  "Pourquoi k = 6 si la silhouette est moderee ?",
-  "Parce que k = 6 est le meilleur k teste selon la silhouette moyenne, mais reste a interpreter prudemment.",
+  "Pourquoi retenir ce nombre de clusters si la silhouette est moderee ?",
+  "Parce que la solution retenue est choisie apres comparaison des axes et des valeurs de k, avec une interpretation prudente.",
   paste0(
     "La table existante recommande k = ",
     k_retenu,
-    " selon la silhouette moyenne maximale",
+    " apres comparaison des solutions candidates",
     ifelse(is.na(silhouette_k), ".", paste0(" (", round(silhouette_k, 3), ").")),
     " Une silhouette moderee indique que les profils ne sont pas totalement separes; le choix doit donc etre defendu avec les profils interpretes",
     ifelse(is.na(nb_clusters_interpretes), ".", paste0(" (", nb_clusters_interpretes, " profils documentes)."))
@@ -494,7 +494,7 @@ questions_soutenance_reponses <- tibble::tribble(
   "Les zeros ne doivent pas etre lus automatiquement comme des erreurs. Pour les notes, un zero peut correspondre a aucune performance academique observee; pour approved, a aucune unite approuvee; pour evaluations, a aucune evaluation. Les fichiers 08_audit_zeros_academiques.csv et 08_coherence_zeros_notes.csv quantifient ces cas par target.",
   "La regression logistique est-elle causale ?",
   "Non, elle mesure des associations conditionnelles dans ce jeu de donnees.",
-  "La regression logistique estime des relations entre variables et probabilite de Dropout dans le cadre du modele, toutes choses egales par ailleurs dans les variables incluses. Elle ne prouve pas qu'une variable cause le decrochage, car il peut exister des facteurs non observes, des biais de selection ou des temporalites non controlees.",
+  "La regression logistique estime des relations entre variables et probabilite de Dropout dans le cadre du modele, toutes choses egales par ailleurs dans les variables incluses. Elle indique des associations et non un mecanisme direct, car il peut exister des facteurs non observes, des biais de selection ou des temporalites non controlees.",
   "Le modele logistique est-il un modele de prediction precoce ?",
   "Pas strictement, car il utilise des variables academiques des semestres.",
   paste0(
@@ -575,6 +575,218 @@ ggplot2::ggsave(
   height = 5,
   dpi = 300
 )
+
+# ------------------------------------------------------------
+# 7. Audits de la FAMD principale reduite, du clustering et des modeles
+# ------------------------------------------------------------
+
+message("Construction des audits principaux demandes.")
+
+statut_bool <- function(condition) {
+  if (isTRUE(condition)) "OK" else "ERREUR"
+}
+
+presence_fichier <- function(chemin) {
+  tibble::tibble(
+    controle = paste0("presence fichier ", chemin),
+    statut = statut_bool(file.exists(chemin)),
+    detail = ifelse(file.exists(chemin), "Fichier present.", "Fichier absent.")
+  )
+}
+
+chemin_actives_principale <- file.path("outputs", "tables", "04_principale_variables_actives.csv")
+chemin_supp_principale <- file.path("outputs", "tables", "04_principale_variables_supplementaires.csv")
+
+actives_principale <- if (file.exists(chemin_actives_principale)) {
+  readr::read_csv(chemin_actives_principale, show_col_types = FALSE)
+} else {
+  tibble::tibble(variable = character())
+}
+
+supp_principale <- if (file.exists(chemin_supp_principale)) {
+  readr::read_csv(chemin_supp_principale, show_col_types = FALSE)
+} else {
+  tibble::tibble(variable = character())
+}
+
+variables_actives_principales <- actives_principale |>
+  dplyr::pull(.data$variable)
+
+variables_supp_principales <- supp_principale |>
+  dplyr::pull(.data$variable)
+
+fichiers_famd_principale <- c(
+  file.path("outputs", "models", "04_resultat_famd_principale_reduite.rds"),
+  file.path("outputs", "tables", "04_principale_variables_actives.csv"),
+  file.path("outputs", "tables", "04_principale_variables_supplementaires.csv"),
+  file.path("outputs", "tables", "04_principale_valeurs_propres.csv"),
+  file.path("outputs", "tables", "04_principale_contributions_axes_1_2.csv"),
+  file.path("outputs", "tables", "04_principale_cos2_variables_axes_1_2.csv"),
+  file.path("outputs", "tables", "04_principale_coordonnees_individus.csv"),
+  file.path("outputs", "figures", "04_principale_screeplot.png"),
+  file.path("outputs", "figures", "04_principale_individus_target.png"),
+  file.path("outputs", "figures", "04_principale_barycentres_target.png"),
+  file.path("outputs", "figures", "04_principale_variables_top.png")
+)
+
+audit_famd_principale <- dplyr::bind_rows(
+  purrr::map_dfr(fichiers_famd_principale, presence_fichier),
+  tibble::tibble(
+    controle = c(
+      "target jamais active",
+      "dropout_binary et success_binary jamais actives",
+      "semestre 2 non actif dans FAMD principale reduite",
+      "variables economiques non actives dans FAMD principale reduite",
+      "target disponible comme variable supplementaire",
+      "variables du semestre 2 disponibles comme supplementaires",
+      "variables economiques disponibles comme supplementaires"
+    ),
+    statut = c(
+      statut_bool(!"target" %in% variables_actives_principales),
+      statut_bool(length(intersect(c("dropout_binary", "success_binary"), variables_actives_principales)) == 0),
+      statut_bool(!any(grepl("2nd_sem", variables_actives_principales))),
+      statut_bool(length(intersect(c("unemployment_rate", "inflation_rate", "gdp"), variables_actives_principales)) == 0),
+      statut_bool("target" %in% variables_supp_principales),
+      statut_bool(all(c("curricular_units_2nd_sem_evaluations", "curricular_units_2nd_sem_approved", "curricular_units_2nd_sem_grade") %in% variables_supp_principales)),
+      statut_bool(all(c("unemployment_rate", "inflation_rate", "gdp") %in% variables_supp_principales))
+    ),
+    detail = c(
+      paste("Variables actives :", paste(variables_actives_principales, collapse = ", ")),
+      paste("Variables derivees actives :", paste(intersect(c("dropout_binary", "success_binary"), variables_actives_principales), collapse = ", ")),
+      paste("Variables semestre 2 actives :", paste(grep("2nd_sem", variables_actives_principales, value = TRUE), collapse = ", ")),
+      paste("Variables economiques actives :", paste(intersect(c("unemployment_rate", "inflation_rate", "gdp"), variables_actives_principales), collapse = ", ")),
+      paste("Variables supplementaires :", paste(variables_supp_principales, collapse = ", ")),
+      "Les variables academiques S2 doivent etre supplementaires uniquement.",
+      "Les variables economiques doivent etre supplementaires uniquement."
+    )
+  )
+)
+
+readr::write_csv(
+  audit_famd_principale,
+  file.path("outputs", "tables", "08_audit_famd_principale_reduite.csv")
+)
+
+fichiers_clustering_principal <- c(
+  file.path("outputs", "tables", "05_grille_validation_k_axes_principale.csv"),
+  file.path("outputs", "tables", "05_recommandation_solution_clustering_principale.csv"),
+  file.path("outputs", "tables", "05_clusters_individus_principale.csv"),
+  file.path("outputs", "tables", "05_croisement_cluster_target_principale.csv"),
+  file.path("outputs", "tables", "05_profils_clusters_principale.csv"),
+  file.path("outputs", "tables", "05_silhouette_par_cluster_principale.csv"),
+  file.path("outputs", "tables", "05_stabilite_clustering_principale.csv"),
+  file.path("outputs", "tables", "05_tests_quanti_par_cluster.csv"),
+  file.path("outputs", "tables", "05_tests_quali_par_cluster.csv"),
+  file.path("outputs", "tables", "05_test_cluster_target.csv"),
+  file.path("outputs", "tables", "05_effets_variables_clusters.csv"),
+  file.path("outputs", "figures", "05_principale_methode_coude.png"),
+  file.path("outputs", "figures", "05_principale_silhouette_moyenne.png"),
+  file.path("outputs", "figures", "05_principale_clusters_famd.png"),
+  file.path("outputs", "figures", "05_principale_composition_clusters_target.png"),
+  file.path("outputs", "figures", "05_principale_profils_academiques_clusters.png"),
+  file.path("outputs", "figures", "05_principale_dendrogramme_cah.png")
+)
+
+clusters_principaux <- if (file.exists(file.path("outputs", "tables", "05_clusters_individus_principale.csv"))) {
+  readr::read_csv(file.path("outputs", "tables", "05_clusters_individus_principale.csv"), show_col_types = FALSE)
+} else {
+  tibble::tibble()
+}
+
+audit_clustering_principal <- dplyr::bind_rows(
+  purrr::map_dfr(fichiers_clustering_principal, presence_fichier),
+  tibble::tibble(
+    controle = c(
+      "clustering principal base sur coordonnees FAMD principale reduite",
+      "target non utilisee comme coordonnee de clustering",
+      "dropout_binary/success_binary absentes de la table clusters",
+      "tests statistiques par cluster presents"
+    ),
+    statut = c(
+      statut_bool(all(c("Dim.1", "Dim.2", "cluster_kmeans") %in% names(clusters_principaux))),
+      statut_bool(!"target" %in% grep("^Dim\\.", names(clusters_principaux), value = TRUE)),
+      statut_bool(length(intersect(c("dropout_binary", "success_binary"), names(clusters_principaux))) == 0),
+      statut_bool(all(file.exists(c(
+        file.path("outputs", "tables", "05_tests_quanti_par_cluster.csv"),
+        file.path("outputs", "tables", "05_tests_quali_par_cluster.csv"),
+        file.path("outputs", "tables", "05_test_cluster_target.csv"),
+        file.path("outputs", "tables", "05_effets_variables_clusters.csv")
+      ))))
+    ),
+    detail = c(
+      "La table individuelle principale contient les coordonnees Dim.* issues de la FAMD principale reduite.",
+      "Target peut etre conservee pour interpretation apres clustering, pas comme coordonnee.",
+      "Les variables derivees de target ne doivent pas apparaitre dans la table individuelle de clustering.",
+      "Les tests Kruskal-Wallis et Khi-deux doivent etre disponibles."
+    )
+  )
+)
+
+readr::write_csv(
+  audit_clustering_principal,
+  file.path("outputs", "tables", "08_audit_clustering_principal.csv")
+)
+
+fichiers_modeles_logistiques <- c(
+  file.path("outputs", "tables", "06_comparaison_modeles_logit.csv"),
+  file.path("outputs", "tables", "06_metriques_logit_precoce.csv"),
+  file.path("outputs", "tables", "06_metriques_logit_complet.csv"),
+  file.path("outputs", "tables", "06_odds_ratios_logit_precoce.csv"),
+  file.path("outputs", "tables", "06_odds_ratios_logit_complet.csv"),
+  file.path("outputs", "figures", "06_roc_logit_precoce.png"),
+  file.path("outputs", "figures", "06_roc_logit_complet.png")
+)
+
+comparaison_logit <- if (file.exists(file.path("outputs", "tables", "06_comparaison_modeles_logit.csv"))) {
+  readr::read_csv(file.path("outputs", "tables", "06_comparaison_modeles_logit.csv"), show_col_types = FALSE)
+} else {
+  tibble::tibble()
+}
+
+audit_modeles_logistiques <- dplyr::bind_rows(
+  purrr::map_dfr(fichiers_modeles_logistiques, presence_fichier),
+  tibble::tibble(
+    controle = c(
+      "modele precoce disponible",
+      "modele complet disponible",
+      "validation train/test presente",
+      "validation croisee simple presente",
+      "seuil de prediction documente"
+    ),
+    statut = c(
+      statut_bool("precoce" %in% comparaison_logit$modele),
+      statut_bool("complet" %in% comparaison_logit$modele),
+      statut_bool("jeu_evaluation" %in% names(comparaison_logit) && all(comparaison_logit$jeu_evaluation == "test")),
+      statut_bool(all(c("cv_accuracy_moyenne", "cv_auc_moyenne") %in% names(comparaison_logit))),
+      statut_bool("seuil_prediction" %in% names(comparaison_logit) && all(comparaison_logit$seuil_prediction == 0.5))
+    ),
+    detail = c(
+      "Le modele precoce doit utiliser les variables d'entree et le semestre 1.",
+      "Le modele complet doit ajouter les variables du semestre 2.",
+      "Les metriques principales sont calculees sur un jeu de test.",
+      "Une validation croisee simple est resumee dans la comparaison.",
+      "Le seuil de classification attendu est 0,5."
+    )
+  )
+)
+
+readr::write_csv(
+  audit_modeles_logistiques,
+  file.path("outputs", "tables", "08_audit_modeles_logistiques.csv")
+)
+
+audits_principaux <- dplyr::bind_rows(
+  audit_famd_principale |> dplyr::mutate(audit = "famd_principale"),
+  audit_clustering_principal |> dplyr::mutate(audit = "clustering_principal"),
+  audit_modeles_logistiques |> dplyr::mutate(audit = "modeles_logistiques")
+)
+
+if (any(audits_principaux$statut == "ERREUR")) {
+  warning(
+    "Certains audits principaux signalent une ERREUR : consulter 08_audit_famd_principale_reduite.csv, ",
+    "08_audit_clustering_principal.csv et 08_audit_modeles_logistiques.csv."
+  )
+}
 
 message("Audit technique termine.")
 message("Sorties creees dans outputs/tables et outputs/figures.")

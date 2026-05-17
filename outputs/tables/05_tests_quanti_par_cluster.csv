@@ -1,0 +1,9 @@
+variable,test,statistique,ddl,p_value,cluster_moyenne_min,cluster_moyenne_max,interpretation
+previous_qualification_grade,Kruskal-Wallis,5.5622564941243935,1,0.01835174529792641,1,2,distribution differente selon les clusters
+admission_grade,Kruskal-Wallis,11.225355076156333,1,8.068733495026741e-4,1,2,distribution differente selon les clusters
+age_at_enrollment,Kruskal-Wallis,194.7928322424989,1,2.859077262367973e-44,2,1,distribution differente selon les clusters
+curricular_units_1st_sem_evaluations,Kruskal-Wallis,582.154594416365,1,1.2747178771421704e-128,1,2,distribution differente selon les clusters
+curricular_units_1st_sem_approved,Kruskal-Wallis,1981.7376266038439,1,0,1,2,distribution differente selon les clusters
+curricular_units_1st_sem_grade,Kruskal-Wallis,1693.1679041555888,1,0,1,2,distribution differente selon les clusters
+curricular_units_2nd_sem_approved,Kruskal-Wallis,1825.3858645544738,1,0,1,2,distribution differente selon les clusters
+curricular_units_2nd_sem_grade,Kruskal-Wallis,1550.8142359627552,1,0,1,2,distribution differente selon les clusters

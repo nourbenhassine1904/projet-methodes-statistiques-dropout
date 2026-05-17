@@ -1,0 +1,22 @@
+controle,statut,detail
+presence fichier outputs/tables/05_grille_validation_k_axes_principale.csv,OK,Fichier present.
+presence fichier outputs/tables/05_recommandation_solution_clustering_principale.csv,OK,Fichier present.
+presence fichier outputs/tables/05_clusters_individus_principale.csv,OK,Fichier present.
+presence fichier outputs/tables/05_croisement_cluster_target_principale.csv,OK,Fichier present.
+presence fichier outputs/tables/05_profils_clusters_principale.csv,OK,Fichier present.
+presence fichier outputs/tables/05_silhouette_par_cluster_principale.csv,OK,Fichier present.
+presence fichier outputs/tables/05_stabilite_clustering_principale.csv,OK,Fichier present.
+presence fichier outputs/tables/05_tests_quanti_par_cluster.csv,OK,Fichier present.
+presence fichier outputs/tables/05_tests_quali_par_cluster.csv,OK,Fichier present.
+presence fichier outputs/tables/05_test_cluster_target.csv,OK,Fichier present.
+presence fichier outputs/tables/05_effets_variables_clusters.csv,OK,Fichier present.
+presence fichier outputs/figures/05_principale_methode_coude.png,OK,Fichier present.
+presence fichier outputs/figures/05_principale_silhouette_moyenne.png,OK,Fichier present.
+presence fichier outputs/figures/05_principale_clusters_famd.png,OK,Fichier present.
+presence fichier outputs/figures/05_principale_composition_clusters_target.png,OK,Fichier present.
+presence fichier outputs/figures/05_principale_profils_academiques_clusters.png,OK,Fichier present.
+presence fichier outputs/figures/05_principale_dendrogramme_cah.png,OK,Fichier present.
+clustering principal base sur coordonnees FAMD principale reduite,OK,La table individuelle principale contient les coordonnees Dim.* issues de la FAMD principale reduite.
+target non utilisee comme coordonnee de clustering,OK,"Target peut etre conservee pour interpretation apres clustering, pas comme coordonnee."
+dropout_binary/success_binary absentes de la table clusters,OK,Les variables derivees de target ne doivent pas apparaitre dans la table individuelle de clustering.
+tests statistiques par cluster presents,OK,Les tests Kruskal-Wallis et Khi-deux doivent etre disponibles.
