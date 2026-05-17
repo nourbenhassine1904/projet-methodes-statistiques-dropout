@@ -270,7 +270,7 @@ function HomePage() {
       story={{
         question: "Quels profils étudiants peut-on construire à partir des informations disponibles ?",
         method: "Chaîne complète : préparation, description, FAMD, clustering et régression logistique complémentaire.",
-        result: "Les résultats sont organisés autour de 6 profils et d'une lecture académique puis socio-administrative.",
+        result: "Les resultats sont organises autour de deux profils finaux : risque eleve et majoritaire favorable.",
         interpretation: "Le projet vise à construire des profils étudiants interprétables, pas seulement à prédire un statut.",
         limit: "L'interface présente les résultats produits avec R ; elle ne refait pas les calculs statistiques."
       }}
@@ -402,16 +402,16 @@ function FamdPage() {
     <PageShell
       eyebrow="Analyse factorielle"
       title="FAMD"
-      intro="La FAMD est mobilisée parce que les données combinent variables quantitatives et qualitatives."
-      contribution="Elle réduit la complexité du dataset et fournit l'espace factoriel utilisé ensuite pour le clustering."
+      intro="La FAMD principale reduite est mobilisee parce que les donnees combinent variables quantitatives et qualitatives."
+      contribution="Elle reduit la complexite du dataset et fournit l'espace factoriel utilise ensuite pour le clustering principal."
       story={{
         question: "Quels axes résument la structure multivariée des profils étudiants ?",
-        method: "FAMD sur les variables actives mixtes, avec Target comme variable illustrative.",
-        result: "Dim 1 se lit comme un axe académique ; Dim 2 comme un axe socio-administratif.",
-        interpretation: "La structuration principale des profils est d'abord académique, puis socio-administrative.",
-        limit: "Les deux premières dimensions ne résument pas toute l'information, ce qui est normal avec des données mixtes."
+        method: "FAMD principale reduite sur 11 variables actives, avec Target comme variable illustrative.",
+        result: "Dim 1 se lit surtout comme un axe academique ; Dim 2 complete avec le contexte de parcours.",
+        interpretation: "La structuration principale des profils est d'abord academique, puis liee au contexte de parcours.",
+        limit: "Les deux premieres dimensions ne resument pas toute l'information, ce qui est normal avec des donnees mixtes."
       }}
-      message="La FAMD montre que la structuration principale des profils est d'abord académique, puis socio-administrative."
+      message="La FAMD principale reduite structure les profils sans utiliser Target comme variable active."
     >
       <CardGrid columns="three">
         <MethodCard
@@ -433,13 +433,13 @@ function FamdPage() {
 
       <CardGrid columns="two">
         <InsightCard
-          title="Dim 1 = axe académique"
-          text="Cet axe est associé aux unités approuvées, aux unités inscrites et aux notes. Il oppose les parcours académiques plus solides aux parcours fragiles."
+          title="Dim 1 = axe academique"
+          text="Cet axe est associe aux notes et aux unites approuvees du premier semestre. Il oppose les parcours academiques plus solides aux parcours fragiles."
           tone="strong"
         />
         <InsightCard
-          title="Dim 2 = axe socio-administratif"
-          text="Cet axe est associé à l'âge, au déplacement, aux frais de scolarité, à la bourse et au régime, selon les contributions observées."
+          title="Dim 2 = contexte de parcours"
+          text="Cet axe complete la lecture avec les evaluations, l'age a l'inscription, la qualification precedente, la note d'admission et le regime jour/soir."
           tone="strong"
         />
       </CardGrid>
@@ -472,9 +472,9 @@ function ClusteringPage() {
       story={{
         question: "Peut-on transformer l'espace FAMD en groupes d'étudiants lisibles ?",
         method: "k-means appliqué sur les coordonnées FAMD.",
-        result: "Le choix k = 6 permet d'obtenir six profils interprétables.",
-        interpretation: "Les clusters distinguent profils favorables, intermédiaires, à risque et critique.",
-        limit: "La silhouette reste modérée ; le clustering doit être lu comme une typologie exploratoire."
+        result: "La solution principale est nb_axes = 2, k = 2, avec une silhouette moyenne de 0,508.",
+        interpretation: "Les clusters distinguent un profil a risque eleve et un profil majoritaire favorable.",
+        limit: "La typologie a deux groupes est robuste et lisible, mais moins detaillee qu'une segmentation exploratoire plus fine."
       }}
       message="Le clustering transforme l'espace factoriel en profils étudiants interprétables."
     >
@@ -485,12 +485,12 @@ function ClusteringPage() {
           badge="Coordonnées FAMD"
         />
         <MethodCard
-          title="Choix de k = 6"
-          text="k = 6 est retenu car il est techniquement recommandé par la silhouette et reste interprétable pour la soutenance."
-          badge="Six profils"
+          title="Solution principale k = 2"
+          text="k = 2 est retenu avec nb_axes = 2, une silhouette moyenne de 0,508 et une stabilite ARI de 1,00."
+          badge="Deux profils"
         />
-        <WarningBox title="Silhouette modérée">
-          La séparation des groupes suggère une structure utile, mais elle ne doit pas être interprétée comme une segmentation définitive.
+        <WarningBox title="Lecture exploratoire">
+          La separation des groupes suggere une structure utile, mais elle doit rester descriptive et non causale.
         </WarningBox>
       </CardGrid>
 
@@ -510,15 +510,15 @@ function ClusteringPage() {
         </article>
       )}
 
-      <SectionIntro kicker="Classement" title="Lecture décisionnelle des profils">
+      <SectionIntro kicker="Classement" title="Lecture decisionnelle des profils finaux">
         Les profils ne servent pas seulement à nommer des groupes : ils permettent de prioriser les
         actions selon le niveau de risque et la composition observée.
       </SectionIntro>
       <div className="rankingGrid">
-        <InsightCard title="Profils favorables" text="Clusters 2 et 3 : forte proportion de Graduate et risque faible." />
-        <InsightCard title="Profil intermédiaire" text="Cluster 5 : situation de transition avec risque non négligeable." />
-        <InsightCard title="Profils à risque" text="Clusters 1, 4 et 6 : proportion élevée de Dropout." />
-        <InsightCard title="Profil critique" text="Cluster 4 : priorité d'intervention dans une lecture opérationnelle." tone="danger" />
+        <InsightCard title="Profil a risque eleve" text="Cluster 1 : 929 etudiants, 81,5 % de Dropout." tone="danger" />
+        <InsightCard title="Profil majoritaire favorable" text="Cluster 2 : 3495 etudiants, 19,0 % de Dropout et 60,8 % de Graduate." />
+        <InsightCard title="Silhouette" text="La solution principale atteint une silhouette moyenne de 0,508." />
+        <InsightCard title="Stabilite" text="La solution est stable, avec un ARI moyen de 1,00." />
       </div>
 
       <div className="clusterGrid">
@@ -540,11 +540,11 @@ function LogisticPage() {
       story={{
         question: "Quels facteurs sont associés au risque binaire Dropout vs Non_Dropout ?",
         method: "Régression logistique et lecture prudente des métriques et odds ratios.",
-        result: "Le modèle atteint 85,76 % d'accuracy, avec un rappel Dropout de 71,13 %.",
-        interpretation: "Les résultats sont cohérents avec l'importance des dimensions académiques et socio-administratives.",
+        result: "Le modele precoce atteint accuracy 0,849, recall Dropout 0,716 et AUC 0,884 ; le modele complet atteint 0,865, 0,747 et 0,909.",
+        interpretation: "Les resultats sont coherents avec l'importance des dimensions academiques et administratives.",
         limit: "Les odds ratios indiquent des associations conditionnelles dans le modèle, pas des relations causales."
       }}
-      message="La régression logistique confirme la cohérence des facteurs académiques et socio-administratifs associés au risque de décrochage."
+      message="La regression logistique reste complementaire : le modele complet est plus performant, mais plus tardif."
     >
       <CardGrid columns="two">
         <MethodCard
@@ -608,8 +608,8 @@ function RecommendationsPage() {
       story={{
         question: "Comment transformer les résultats statistiques en priorités d'action ?",
         method: "Synthèse des axes FAMD, des clusters, de la régression logistique et des limites.",
-        result: "Les profils à risque se concentrent notamment dans les clusters 4, 1 et 6.",
-        interpretation: "Les actions doivent cibler à la fois le suivi académique et la fragilité financière.",
+        result: "La solution finale distingue le cluster 1 a risque eleve et le cluster 2 majoritaire favorable.",
+        interpretation: "Les actions doivent cibler le suivi academique precoce et les fragilites administratives.",
         limit: "Les recommandations doivent être validées sur d'autres cohortes avant généralisation."
       }}
       message="L'analyse permet de prioriser les profils les plus exposés tout en conservant une lecture exploratoire et prudente."
@@ -641,7 +641,7 @@ function RecommendationsPage() {
           <p>
             Le tableau de bord suggère une priorisation des actions : repérer tôt les fragilités
             académiques, surveiller les contraintes financières, puis concentrer l'accompagnement
-            sur les profils critiques comme le cluster 4.
+            sur le profil a risque eleve, le cluster 1.
           </p>
         </div>
       </CardGrid>

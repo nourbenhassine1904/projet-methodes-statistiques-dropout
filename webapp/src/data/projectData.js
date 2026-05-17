@@ -6,32 +6,32 @@ export const navItems = [
   { id: "descriptive", label: "Analyse descriptive" },
   { id: "famd", label: "FAMD" },
   { id: "clustering", label: "Clustering" },
-  { id: "logit", label: "Régression logistique" },
+  { id: "logit", label: "Regression logistique" },
   { id: "recommandations", label: "Recommandations" }
 ];
 
 export const projectTitle =
-  "Analyse multivariée des profils d'étudiants en enseignement supérieur";
+  "Analyse multivariee des profils d'etudiants en enseignement superieur";
 
 export const projectSubtitle =
-  "Facteurs socio-économiques, parcours académique et réussite à l'aide de la FAMD et du clustering";
+  "FAMD principale reduite, clustering sur coordonnees FAMD et regression logistique complementaire";
 
 export const pipeline = [
   "Import",
-  "Préparation",
+  "Preparation",
   "Analyse descriptive",
-  "FAMD",
-  "Clustering",
-  "Régression logistique",
+  "FAMD principale reduite",
+  "Clustering k = 2",
+  "Regression logistique",
   "Recommandations"
 ];
 
 export const kpis = [
-  { label: "Étudiants", value: "4424", detail: "observations analysées" },
-  { label: "Variables", value: "37", detail: "descripteurs du parcours" },
-  { label: "Statuts", value: "3", detail: "Dropout, Enrolled, Graduate" },
-  { label: "Profils", value: "6", detail: "clusters interprétés" },
-  { label: "Accuracy logistique", value: "85,76 %", detail: "modèle complémentaire" }
+  { label: "Etudiants", value: "4424", detail: "observations analysees" },
+  { label: "Variables actives FAMD", value: "11", detail: "FAMD principale reduite" },
+  { label: "Target", value: "illustrative", detail: "jamais active dans la FAMD ni le clustering" },
+  { label: "Solution clustering", value: "k = 2", detail: "nb_axes = 2, silhouette 0,508" },
+  { label: "AUC logit complet", value: "0,909", detail: "modele complementaire plus tardif" }
 ];
 
 export const targetDistribution = [
@@ -43,53 +43,53 @@ export const targetDistribution = [
 export const targetStatuses = [
   {
     title: "Dropout",
-    text: "Étudiants sortis du parcours avant l'obtention du diplôme."
+    text: "Etudiants sortis du parcours avant l'obtention du diplome."
   },
   {
     title: "Enrolled",
-    text: "Étudiants encore inscrits au moment de l'observation."
+    text: "Etudiants encore inscrits au moment de l'observation."
   },
   {
     title: "Graduate",
-    text: "Étudiants ayant terminé le parcours avec succès."
+    text: "Etudiants ayant termine le parcours avec succes."
   }
 ];
 
 export const variableTypes = [
   {
-    title: "Académiques",
-    text: "Notes, unités inscrites et unités approuvées, principalement par semestre."
+    title: "Actives quantitatives",
+    text: "Qualification precedente, note d'admission, age, evaluations, unites approuvees et note du premier semestre."
   },
   {
-    title: "Socio-économiques",
-    text: "Bourse, statut débiteur, frais de scolarité et indicateurs de contexte."
+    title: "Actives qualitatives",
+    text: "Regime jour/soir, debiteur, frais de scolarite a jour, genre et statut de boursier."
   },
   {
-    title: "Administratives",
-    text: "Régime, statut de déplacement, caractéristiques d'inscription et de parcours."
+    title: "Supplementaires",
+    text: "Target, semestre 2, variables economiques et autres variables de contexte servent a interpreter."
   },
   {
-    title: "Économiques",
-    text: "Variables de contexte comme le PIB, l'inflation et le chômage."
+    title: "Cible",
+    text: "Target reste illustrative pour lire les axes et les clusters apres leur construction."
   }
 ];
 
 export const methods = [
   {
     title: "Analyse descriptive",
-    text: "Comparer les distributions et repérer les premières différences entre statuts."
+    text: "Comparer les distributions et reperer les premieres differences entre statuts."
   },
   {
-    title: "FAMD",
-    text: "Projeter simultanément les variables quantitatives et qualitatives dans un espace commun."
+    title: "FAMD principale reduite",
+    text: "Projeter 11 variables actives mixtes dans un espace commun."
   },
   {
     title: "Clustering",
-    text: "Transformer l'espace factoriel en profils étudiants interprétables."
+    text: "Former deux profils principaux a partir des coordonnees FAMD."
   },
   {
-    title: "Régression logistique",
-    text: "Vérifier, en complément, les associations avec une cible binaire Dropout vs Non_Dropout."
+    title: "Regression logistique",
+    text: "Comparer deux modeles complementaires, precoce et complet."
   }
 ];
 
@@ -99,274 +99,243 @@ export const figures = {
     title: "Distribution de la variable Target",
     caption: "Effectifs par statut : Dropout, Enrolled et Graduate.",
     explanation:
-      "Le graphique donne le poids relatif de chaque statut et sert de point de départ pour comparer les profils."
+      "Target sert de repere descriptif pour qualifier les profils, sans construire les axes FAMD ni les clusters."
   },
   descriptive: [
     {
       src: `${assetBase}/figures/03_d_1st_sem_grade_selon_target.png`,
       title: "Notes du 1er semestre selon Target",
-      caption: "Comparaison des notes académiques au premier semestre.",
+      caption: "Comparaison descriptive des notes académiques au premier semestre.",
       explanation:
-        "La lecture se fait par statut : les écarts de niveau suggèrent que la performance académique différencie déjà les trajectoires."
+        "Les ecarts de niveau indiquent une association descriptive entre performance academique et trajectoire observee."
     },
     {
       src: `${assetBase}/figures/03_d_2nd_sem_grade_selon_target.png`,
       title: "Notes du 2e semestre selon Target",
-      caption: "Comparaison des notes académiques au deuxième semestre.",
+      caption: "Variable supplementaire dans la FAMD principale reduite.",
       explanation:
-        "Le deuxième semestre met en évidence des différences utiles pour identifier les situations à risque et préparer la modélisation."
+        "Le semestre 2 est informatif pour l'interpretation, mais il ne construit pas la FAMD principale reduite."
     },
     {
       src: `${assetBase}/figures/03_d_1st_sem_approved_selon_target.png`,
-      title: "Unités approuvées au 1er semestre",
-      caption: "Unités validées selon le statut final.",
+      title: "Unites approuvees au 1er semestre",
+      caption: "Variable active de la FAMD principale reduite.",
       explanation:
-        "Le nombre d'unités approuvées indique l'avancement académique et nourrit l'axe académique observé ensuite en FAMD."
+        "Le nombre d'unites approuvees au premier semestre contribue fortement a l'axe academique."
     },
     {
       src: `${assetBase}/figures/03_d_2nd_sem_approved_selon_target.png`,
-      title: "Unités approuvées au 2e semestre",
-      caption: "Unités validées au deuxième semestre selon Target.",
+      title: "Unites approuvees au 2e semestre",
+      caption: "Variable supplementaire dans la FAMD principale reduite.",
       explanation:
-        "Cette figure est importante car le deuxième semestre apparaît informatif pour distinguer les profils de réussite et de décrochage."
+        "Le semestre 2 aide a qualifier les profils apres la construction de la typologie."
     }
   ],
   famd: [
     {
-      src: `${assetBase}/figures/04_famd_screeplot.png`,
-      title: "Lecture de l'inertie",
-      caption: "Valeurs propres des dimensions de la FAMD.",
+      src: `${assetBase}/figures/04_principale_screeplot.png`,
+      title: "FAMD principale reduite - inertie",
+      caption: "Valeurs propres des dimensions de la FAMD principale reduite.",
       explanation:
-        "Les premières dimensions résument une partie de l'information seulement, ce qui est attendu avec des données mixtes et nombreuses."
+        "Le plan 1-2 resume une partie de l'information et sert de support visuel a l'interpretation."
     },
     {
-      src: `${assetBase}/figures/04_famd_contributions_axes_1_2.png`,
-      title: "Contributions aux axes 1 et 2",
-      caption: "Variables contribuant à la construction des deux premiers axes.",
+      src: `${assetBase}/figures/04_principale_variables_top.png`,
+      title: "FAMD principale reduite - variables contributives",
+      caption: "Variables actives contribuant aux premiers axes.",
       explanation:
-        "Les contributions aident à nommer les axes et à distinguer les dimensions académique et socio-administrative."
+        "Les contributions aident a lire un axe principalement academique et un axe de contexte de parcours."
     },
     {
-      src: `${assetBase}/figures/04_famd_individus_target.png`,
-      title: "Carte des individus",
-      caption: "Projection des étudiants, avec Target utilisée comme information illustrative.",
+      src: `${assetBase}/figures/04_principale_individus_target.png`,
+      title: "FAMD principale reduite - individus",
+      caption: "Projection des etudiants, avec Target uniquement illustrative.",
       explanation:
-        "Les proximités entre individus suggèrent des profils voisins ; la couleur Target aide l'interprétation sans construire les axes."
+        "La couleur Target aide l'interpretation apres calcul ; elle ne construit pas les axes."
     },
     {
-      src: `${assetBase}/figures/04_famd_variables.png`,
-      title: "Carte des variables",
-      caption: "Projection des variables dans l'espace factoriel.",
+      src: `${assetBase}/figures/04_principale_barycentres_target.png`,
+      title: "FAMD principale reduite - barycentres Target",
+      caption: "Position des statuts Target comme information illustrative.",
       explanation:
-        "Les variables proches d'un axe contribuent à son interprétation statistique et pédagogique."
+        "Les barycentres montrent une lecture a posteriori des statuts dans l'espace factoriel."
     }
   ],
   clustering: [
     {
-      src: `${assetBase}/figures/05_silhouette_moyenne.png`,
-      title: "Silhouette moyenne",
-      caption: "Critère technique pour comparer plusieurs valeurs de k.",
+      src: `${assetBase}/figures/05_principale_silhouette_moyenne.png`,
+      title: "Solution principale k = 2 - silhouette",
+      caption: "Silhouette moyenne de la grille axes-k ; solution finale autour de 0,508.",
       explanation:
-        "La silhouette soutient le choix de k, tout en rappelant que la séparation des groupes reste exploratoire."
+        "La solution nb_axes = 2, k = 2 combine lisibilite, silhouette elevee et stabilite."
     },
     {
-      src: `${assetBase}/figures/05_methode_coude.png`,
-      title: "Méthode du coude",
-      caption: "Lecture de l'inertie intra-classe selon le nombre de clusters.",
+      src: `${assetBase}/figures/05_principale_methode_coude.png`,
+      title: "Solution principale k = 2 - methode du coude",
+      caption: "Lecture de l'inertie intra-classe pour le clustering principal.",
       explanation:
-        "La méthode du coude complète la silhouette et aide à retenir un nombre de profils interprétable."
+        "Le coude reste un repere descriptif ; la recommandation finale vient de la grille complete."
     },
     {
-      src: `${assetBase}/figures/05_clusters_kmeans_famd.png`,
-      title: "Clusters k-means sur coordonnées FAMD",
-      caption: "Projection des profils dans l'espace factoriel.",
+      src: `${assetBase}/figures/05_principale_clusters_famd.png`,
+      title: "Clusters principaux sur coordonnees FAMD",
+      caption: "Projection de la solution principale nb_axes = 2, k = 2.",
       explanation:
-        "Les clusters transforment les coordonnées FAMD en groupes lisibles pour la soutenance et la décision."
+        "Les groupes sont construits sur les coordonnees FAMD, pas directement sur les variables brutes."
     },
     {
-      src: `${assetBase}/figures/05_composition_clusters_target.png`,
-      title: "Composition des clusters par Target",
-      caption: "Répartition de Dropout, Enrolled et Graduate dans chaque cluster.",
+      src: `${assetBase}/figures/05_principale_composition_clusters_target.png`,
+      title: "Composition des deux clusters par Target",
+      caption: "Target sert uniquement a qualifier les deux profils apres clustering.",
       explanation:
-        "La composition par Target permet de qualifier les profils favorables, intermédiaires ou à risque."
+        "Le cluster 1 est a risque eleve ; le cluster 2 est majoritaire et favorable."
     }
   ],
   logit: {
     src: `${assetBase}/figures/06_probabilites_dropout.png`,
-    title: "Probabilités estimées de Dropout",
-    caption: "Distribution des probabilités produites par le modèle logistique.",
+    title: "Probabilites estimees de Dropout",
+    caption: "Distribution des probabilites produites par le modele logistique.",
     explanation:
-      "La figure permet de voir comment le modèle sépare les situations estimées comme plus ou moins proches du Dropout."
+      "La regression logistique reste complementaire et decrit des associations conditionnelles."
   }
 };
 
 export const clusters = [
   {
     id: 1,
-    name: "Profil fragile à risque académique",
-    size: 74,
-    dropout: "64,86 %",
-    graduate: "17,57 %",
-    risk: "Élevé",
-    category: "Profil à risque",
-    description: "Petit groupe avec forte proportion de Dropout et faibles performances académiques."
+    name: "Profil a risque eleve",
+    size: 929,
+    dropout: "81,5 %",
+    graduate: "8,9 %",
+    risk: "Eleve",
+    category: "Profil prioritaire",
+    critical: true,
+    description:
+      "Groupe avec forte proportion de Dropout et indicateurs academiques fragiles des le premier semestre."
   },
   {
     id: 2,
-    name: "Profil performant à forte réussite",
-    size: 619,
-    dropout: "18,26 %",
-    graduate: "64,62 %",
+    name: "Profil majoritaire favorable",
+    size: 3495,
+    dropout: "19,0 %",
+    graduate: "60,8 %",
     risk: "Faible",
     category: "Profil favorable",
-    description: "Groupe avec forte proportion de Graduate, note d'admission élevée et bonnes performances académiques."
-  },
-  {
-    id: 3,
-    name: "Profil stable majoritaire",
-    size: 2158,
-    dropout: "14,97 %",
-    graduate: "64,37 %",
-    risk: "Faible",
-    category: "Profil favorable",
-    description: "Groupe majoritaire avec forte proportion de Graduate et situation globale stable."
-  },
-  {
-    id: 4,
-    name: "Profil critique de décrochage",
-    size: 619,
-    dropout: "79,48 %",
-    graduate: "11,31 %",
-    risk: "Très élevé",
-    category: "Profil critique",
-    critical: true,
-    description: "Groupe avec très forte proportion de Dropout, très faibles unités approuvées et notes très faibles."
-  },
-  {
-    id: 5,
-    name: "Profil intermédiaire en transition",
-    size: 585,
-    dropout: "36,58 %",
-    graduate: "47,18 %",
-    risk: "Modéré",
-    category: "Profil intermédiaire",
-    description: "Groupe combinant réussite, inscription en cours et risque de Dropout non négligeable."
-  },
-  {
-    id: 6,
-    name: "Profil à risque élevé",
-    size: 369,
-    dropout: "62,60 %",
-    graduate: "16,53 %",
-    risk: "Élevé",
-    category: "Profil à risque",
-    description: "Groupe avec forte proportion de Dropout et profil académique à surveiller."
+    description:
+      "Groupe majoritaire avec indicateurs academiques plus favorables et forte proportion de Graduate."
   }
 ];
 
 export const logitMetrics = [
   {
-    label: "Accuracy",
-    value: "85,76 %",
-    measure: "Part des prédictions correctes sur l'ensemble des cas.",
-    interpretation: "Le modèle classe correctement une grande part des étudiants."
+    label: "Modele precoce - accuracy",
+    value: "0,849",
+    measure: "Variables d'entree et premier semestre.",
+    interpretation: "Modele utilisable plus tot, avec une performance deja solide."
   },
   {
-    label: "Precision Dropout",
-    value: "82,11 %",
-    measure: "Parmi les étudiants prédits Dropout, part effectivement Dropout.",
-    interpretation: "Les alertes Dropout sont relativement ciblées."
+    label: "Modele precoce - recall Dropout",
+    value: "0,716",
+    measure: "Part des Dropout reperes par le modele precoce.",
+    interpretation: "Environ sept Dropout sur dix sont reperes dans le jeu de test."
   },
   {
-    label: "Recall Dropout",
-    value: "71,13 %",
-    measure: "Parmi les étudiants réellement Dropout, part repérée par le modèle.",
-    interpretation: "Une partie des Dropout reste non repérée, ce qui invite à la prudence."
+    label: "Modele precoce - AUC",
+    value: "0,884",
+    measure: "Capacite de discrimination du modele precoce.",
+    interpretation: "Bonne discrimination pour un modele disponible plus tot."
   },
   {
-    label: "F1 Dropout",
-    value: "76,23 %",
-    measure: "Équilibre entre précision et rappel pour la classe Dropout.",
-    interpretation: "La performance sur Dropout est cohérente mais non parfaite."
+    label: "Modele complet - accuracy",
+    value: "0,865",
+    measure: "Variables d'entree, semestre 1 et semestre 2.",
+    interpretation: "Performance globale plus elevee, mais avec des informations plus tardives."
   },
   {
-    label: "Specificity Non_Dropout",
-    value: "92,68 %",
-    measure: "Capacité à reconnaître les étudiants Non_Dropout.",
-    interpretation: "Le modèle identifie bien les situations non associées au décrochage."
+    label: "Modele complet - recall Dropout",
+    value: "0,747",
+    measure: "Part des Dropout reperes par le modele complet.",
+    interpretation: "Rappel plus eleve que le modele precoce."
+  },
+  {
+    label: "Modele complet - AUC",
+    value: "0,909",
+    measure: "Capacite de discrimination du modele complet.",
+    interpretation: "Meilleure discrimination, en contrepartie d'un usage plus tardif."
   }
 ];
 
 export const oddsRatios = [
   {
-    variable: "Âge à l'inscription",
+    variable: "Age a l'inscription",
     oddsRatio: "1,05",
-    badge: "risque augmenté",
+    badge: "association positive",
     tone: "up",
-    interpretation: "Un âge plus élevé est associé à une probabilité plus forte de Dropout."
+    interpretation: "Un age plus eleve est associe a une probabilite plus forte de Dropout dans le modele."
   },
   {
-    variable: "Débiteur",
+    variable: "Debiteur",
     oddsRatio: "1,68",
-    badge: "risque augmenté",
+    badge: "association positive",
     tone: "up",
-    interpretation: "Le statut débiteur est associé à un risque de Dropout plus élevé."
+    interpretation: "Le statut debiteur est associe a une probabilite plus forte de Dropout."
   },
   {
-    variable: "Frais de scolarité à jour",
+    variable: "Frais de scolarite a jour",
     oddsRatio: "0,11",
-    badge: "risque diminué",
+    badge: "association negative",
     tone: "down",
-    interpretation: "Être à jour dans les frais est associé à une probabilité plus faible de Dropout."
+    interpretation: "Etre a jour dans les frais est associe a une probabilite plus faible de Dropout."
   },
   {
     variable: "Boursier",
     oddsRatio: "0,43",
-    badge: "risque diminué",
+    badge: "association negative",
     tone: "down",
-    interpretation: "Le statut boursier est associé à une probabilité plus faible de Dropout."
+    interpretation: "Le statut boursier est associe a une probabilite plus faible de Dropout."
   },
   {
-    variable: "Unités approuvées au 2e semestre",
+    variable: "Unites approuvees au 2e semestre",
     oddsRatio: "0,65",
-    badge: "risque diminué",
+    badge: "association negative",
     tone: "down",
-    interpretation: "Plus d'unités approuvées au 2e semestre est associé à une baisse du risque."
+    interpretation: "Le semestre 2 ameliore le modele complet, mais arrive plus tard dans le parcours."
   }
 ];
 
 export const recommendationPlan = [
   {
-    result: "Faibles unités approuvées",
-    interpretation: "Risque académique plus visible dans les profils fragiles.",
-    action: "Mettre en place un suivi académique précoce."
+    result: "Cluster 1",
+    interpretation: "Profil a risque eleve : 929 etudiants, 81,5 % de Dropout.",
+    action: "Prioriser le suivi academique et administratif de ce groupe."
   },
   {
-    result: "Débiteur / frais non à jour",
-    interpretation: "Fragilité financière associée au risque de décrochage.",
-    action: "Proposer un accompagnement financier ciblé."
+    result: "Cluster 2",
+    interpretation: "Profil majoritaire favorable : 3495 etudiants, 60,8 % de Graduate.",
+    action: "Utiliser ce groupe comme reference descriptive des parcours plus favorables."
   },
   {
-    result: "Cluster 4",
-    interpretation: "Profil critique avec la plus forte proportion de Dropout.",
-    action: "Déclencher une intervention prioritaire."
+    result: "Variables du premier semestre",
+    interpretation: "Elles structurent fortement la FAMD principale reduite.",
+    action: "Mettre en place un suivi precoce apres le premier semestre."
   },
   {
-    result: "Deuxième semestre informatif",
-    interpretation: "Les résultats du S2 affinent la lecture du risque.",
-    action: "Suivre les étudiants après S1 et S2."
+    result: "Modele complet",
+    interpretation: "AUC 0,909, plus performant mais plus tardif.",
+    action: "Le reserver a une lecture complementaire apres disponibilite du semestre 2."
   },
   {
-    result: "Silhouette modérée",
-    interpretation: "Le clustering reste exploratoire.",
-    action: "Tester les profils sur d'autres cohortes."
+    result: "Target illustrative",
+    interpretation: "Target qualifie les groupes apres construction non supervisee.",
+    action: "Eviter toute lecture causale ou supervisee du clustering."
   }
 ];
 
 export const limits = [
   "Analyse exploratoire.",
-  "Absence de causalité démontrée.",
-  "Dépendance au dataset étudié.",
-  "Silhouette modérée.",
-  "Généralisation à valider sur d'autres cohortes."
+  "Target illustrative uniquement dans la FAMD et le clustering.",
+  "Projection factorielle 1-2 partielle.",
+  "Clustering k = 2 robuste mais moins detaille.",
+  "Modele complet plus performant mais plus tardif.",
+  "Validation externe absente."
 ];

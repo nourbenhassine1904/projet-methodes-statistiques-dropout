@@ -1,0 +1,2 @@
+modele,nb_variables,accuracy,precision_dropout,recall_dropout,f1_dropout,specificity_non_dropout,auc,vrais_positifs,faux_positifs,faux_negatifs,vrais_negatifs,seuil_prediction,jeu_evaluation
+precoce,12,0.8487584650112867,0.7937743190661478,0.7157894736842105,0.7527675276752768,0.9118136439267887,0.8842105263157894,204,53,81,548,0.5,test

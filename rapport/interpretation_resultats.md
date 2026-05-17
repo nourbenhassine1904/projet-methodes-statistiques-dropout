@@ -1,10 +1,10 @@
 # Interprétation des résultats
 
-Ce document présente une interprétation synthétique des résultats générés dans `outputs/tables`. L’objectif est de proposer une lecture académique, claire et défendable des analyses descriptives, de la FAMD et du clustering, sans ajouter de résultats non présents dans les fichiers CSV.
+Ce document synthétise les résultats finaux disponibles dans `outputs/tables`. Il accompagne le rapport principal en donnant une lecture claire de la FAMD principale réduite, du clustering principal et de la régression logistique complémentaire.
 
-## 1. Résultats de l’analyse descriptive
+## 1. Analyse descriptive
 
-Le jeu de données contient trois statuts finaux dans la variable `Target`. D’après `03_a_distribution_target.csv`, la répartition est la suivante :
+Le jeu de données contient trois statuts dans `target` : `Dropout`, `Enrolled` et `Graduate`. La distribution globale est la suivante :
 
 | Statut | Effectif | Pourcentage |
 |---|---:|---:|
@@ -12,184 +12,122 @@ Le jeu de données contient trois statuts finaux dans la variable `Target`. D’
 | Enrolled | 794 | 17,95 % |
 | Graduate | 2209 | 49,93 % |
 
-La modalité la plus fréquente est donc `Graduate`, qui représente presque la moitié des observations. La modalité `Dropout` concerne environ un tiers des étudiants, ce qui confirme l’intérêt d’étudier les facteurs associés au décrochage.
+Les variables académiques différencient nettement ces statuts. Les étudiants `Graduate` présentent en moyenne davantage d'unités approuvées et de meilleures notes que les étudiants `Dropout`. Cette différence justifie l'importance des indicateurs académiques dans les analyses multivariées.
 
-Les variables académiques présentent des différences nettes selon `Target`. Les étudiants `Graduate` ont en moyenne une note d’admission plus élevée (**128,79**) que les étudiants `Dropout` (**124,96**) et `Enrolled` (**125,53**). L’écart est surtout visible sur les performances semestrielles.
+## 2. FAMD principale réduite
 
-Pour les unités approuvées au 1er semestre, la moyenne est de **2,55** pour `Dropout`, **4,32** pour `Enrolled` et **6,23** pour `Graduate`. Au 2e semestre, la moyenne est de **1,94** pour `Dropout`, **4,06** pour `Enrolled` et **6,18** pour `Graduate`.
+La FAMD principale est réalisée sur **11 variables actives**. Elle est préférable à une ACP, car le dataset combine des variables quantitatives et des variables qualitatives codées. La FAMD permet de construire un espace factoriel commun sans traiter les modalités qualitatives comme de simples valeurs numériques.
 
-Les notes moyennes suivent la même logique. Au 1er semestre, la moyenne est de **7,26** pour `Dropout`, **11,13** pour `Enrolled` et **12,64** pour `Graduate`. Au 2e semestre, elle est de **5,90** pour `Dropout`, **11,12** pour `Enrolled` et **12,70** pour `Graduate`.
+Variables actives quantitatives :
 
-Ces résultats descriptifs montrent que les variables académiques des deux semestres sont fortement différenciées selon le statut final. Elles constituent donc un bloc central pour l’analyse multivariée et pour l’interprétation des profils.
+| Variable |
+|---|
+| `previous_qualification_grade` |
+| `admission_grade` |
+| `age_at_enrollment` |
+| `curricular_units_1st_sem_evaluations` |
+| `curricular_units_1st_sem_approved` |
+| `curricular_units_1st_sem_grade` |
 
-## 2. Interprétation de la FAMD
+Variables actives qualitatives :
 
-### 2.1 Inertie
+| Variable |
+|---|
+| `daytime_evening_attendance` |
+| `debtor` |
+| `tuition_fees_up_to_date` |
+| `gender` |
+| `scholarship_holder` |
 
-La FAMD a été réalisée sur une sélection de variables actives interprétables, avec `target` utilisée comme variable supplémentaire. Certaines variables à très forte cardinalité ont été écartées de la FAMD principale afin de conserver une lecture plus lisible des axes et des contributions. Les valeurs propres issues de `04_famd_valeurs_propres.csv` indiquent que :
+`target` est uniquement illustrative. Les variables du semestre 2 et les variables économiques sont supplémentaires : elles aident à interpréter les résultats, mais ne construisent pas les axes.
 
-| Axe | Inertie expliquée | Inertie cumulée |
-|---|---:|---:|
-| Dim.1 | 13,55 % | 13,55 % |
-| Dim.2 | 6,68 % | 20,23 % |
-| Dim.3 | 4,37 % | 24,60 % |
-| Dim.4 | 4,26 % | 28,86 % |
-| Dim.5 | 3,67 % | 32,53 % |
+Les valeurs propres de `04_principale_valeurs_propres.csv` indiquent que la Dimension 1 explique **21,81 %** de l'inertie, la Dimension 2 **15,95 %**, et les deux premières dimensions **37,76 %** au total. Les cinq premiers axes expliquent **71,98 %** de l'inertie cumulée.
 
-Les deux premiers axes expliquent ensemble **20,23 %** de l’inertie totale. Cette part reste modérée, ce qui est fréquent dans des données mixtes comportant de nombreuses variables. Les deux premiers axes ne résument donc pas toute l’information, mais ils donnent une lecture synthétique des principales oppositions entre profils.
+La Dimension 1 est principalement académique. Elle est portée par `curricular_units_1st_sem_grade`, `curricular_units_1st_sem_approved`, `tuition_fees_up_to_date` et `curricular_units_1st_sem_evaluations`. La Dimension 2 complète cette lecture avec les évaluations du premier semestre, l'âge à l'inscription, la qualification précédente, la note d'admission et le régime jour/soir.
 
-### 2.2 Axe 1 : dimension académique
+## 3. Clustering principal
 
-La Dimension 1 est principalement construite par les variables académiques. Les plus fortes contributions à l’axe 1 sont :
+Le clustering principal est réalisé sur les coordonnées de la FAMD principale réduite. Cette stratégie évite de calculer les distances directement sur les variables brutes et utilise un espace où les variables quantitatives et qualitatives ont déjà été équilibrées.
 
-| Variable | Contribution Dim.1 |
+La solution principale retenue est :
+
+| Paramètre | Valeur |
 |---|---:|
-| `curricular_units_1st_sem_approved` | 15,55 |
-| `curricular_units_2nd_sem_approved` | 14,66 |
-| `curricular_units_2nd_sem_enrolled` | 12,62 |
-| `curricular_units_1st_sem_enrolled` | 12,51 |
-| `curricular_units_2nd_sem_grade` | 10,69 |
-| `curricular_units_1st_sem_grade` | 10,69 |
-| `curricular_units_2nd_sem_evaluations` | 9,83 |
-| `curricular_units_1st_sem_evaluations` | 9,24 |
+| Nombre d'axes FAMD | 2 |
+| Nombre de clusters | 2 |
+| Silhouette moyenne | 0,508 |
+| Taille du cluster 1 | 929 |
+| Taille du cluster 2 | 3495 |
+| Stabilité | stable |
+| ARI moyen | 1,00 |
 
-Cet axe peut donc être interprété comme un **axe académique**. Il synthétise surtout le niveau d’engagement et de performance dans le cursus : unités inscrites, unités évaluées, unités approuvées et notes obtenues aux deux semestres.
+Cette solution est robuste et lisible. Elle ne doit pas être présentée comme une vérité définitive : elle constitue la solution principale du pipeline final, en raison de sa silhouette, de la taille des groupes, de sa stabilité et de son interprétabilité. Les solutions `k = 3` ou `k = 6` peuvent être mentionnées comme comparaisons exploratoires, mais elles ne sont pas la solution principale.
 
-Cette interprétation est cohérente avec l’analyse descriptive : le statut `Graduate` est associé en moyenne à davantage d’unités approuvées et à de meilleures notes que le statut `Dropout`.
+## 4. Interprétation des deux clusters
 
-### 2.3 Axe 2 : dimension socio-administrative
+### Cluster 1 : profil à risque élevé
 
-La Dimension 2 est davantage associée à des variables de profil et de contexte administratif. Les principales contributions à l’axe 2 sont :
+Le cluster 1 regroupe **929 étudiants**. Sa composition selon `target` est la suivante :
 
-| Variable | Contribution Dim.2 |
+| Statut | Pourcentage |
 |---|---:|
-| `age_at_enrollment` | 18,52 |
-| `previous_qualification` | 11,31 |
-| `displaced` | 7,85 |
-| `tuition_fees_up_to_date` | 6,38 |
-| `curricular_units_1st_sem_evaluations` | 6,24 |
-| `daytime_evening_attendance` | 5,93 |
-| `scholarship_holder` | 5,30 |
-| `curricular_units_2nd_sem_without_evaluations` | 4,87 |
-| `curricular_units_1st_sem_without_evaluations` | 4,77 |
-| `debtor` | 3,42 |
+| Dropout | 81,5 % |
+| Enrolled | 9,6 % |
+| Graduate | 8,9 % |
 
-La Dimension 2 peut être interprétée comme un **axe socio-administratif**. Elle est fortement liée à l’âge à l’inscription, à la qualification précédente, au fait d’être déplacé, à la situation des frais de scolarité, au régime jour/soir et au statut de boursier.
+Ce groupe présente des indicateurs académiques fragiles dès le premier semestre : peu d'unités approuvées et des notes faibles. Il présente aussi une proportion plus élevée de frais de scolarité non à jour et de débiteurs. Il correspond au profil prioritaire pour une lecture du risque.
 
-Certaines variables académiques contribuent également à cet axe, notamment les évaluations et les unités sans évaluation. Cela indique que la Dimension 2 ne doit pas être lue comme strictement sociale ou administrative : elle combine des éléments de contexte étudiant avec des éléments liés à la participation au parcours.
+### Cluster 2 : profil majoritaire favorable
 
-### 2.4 Lien avec Target
+Le cluster 2 regroupe **3495 étudiants**. Sa composition selon `target` est la suivante :
 
-Dans la FAMD, `target` est utilisée comme variable supplémentaire. Elle ne sert donc pas à construire les axes, mais elle permet de lire a posteriori comment les statuts `Dropout`, `Enrolled` et `Graduate` se positionnent par rapport aux dimensions factorielles.
+| Statut | Pourcentage |
+|---|---:|
+| Dropout | 19,0 % |
+| Enrolled | 20,2 % |
+| Graduate | 60,8 % |
 
-Le lien principal avec `Target` apparaît à travers l’axe académique. Les résultats descriptifs montrent que le statut `Graduate` est associé à des moyennes plus élevées en unités approuvées et en notes semestrielles, tandis que le statut `Dropout` est associé aux valeurs moyennes les plus faibles sur ces variables. Comme ces variables contribuent fortement à la Dimension 1, il est défendable d’interpréter cet axe comme central pour distinguer les profils de réussite et de décrochage.
+Ce groupe présente des indicateurs académiques nettement plus favorables : davantage d'unités approuvées, de meilleures notes et une situation administrative plus stable en moyenne. Il constitue le profil majoritaire favorable.
 
-La Dimension 2 enrichit cette lecture en ajoutant des informations socio-administratives. Elle peut aider à qualifier les profils au-delà des seules performances académiques.
+## 5. Tests statistiques
 
-## 3. Choix du nombre de clusters
+Les tests de différences entre clusters montrent des écarts marqués. Pour les variables quantitatives, les tests de Kruskal-Wallis indiquent des distributions différentes selon les clusters, notamment pour :
 
-Le clustering k-means a été réalisé sur les coordonnées issues de la FAMD. Le fichier `05_kmeans_silhouette.csv` compare les silhouettes moyennes pour plusieurs valeurs de `k` :
+| Variable | p-value |
+|---|---:|
+| `curricular_units_1st_sem_approved` | p < 0.001 |
+| `curricular_units_1st_sem_grade` | p < 0.001 |
+| `curricular_units_2nd_sem_approved` | p < 0.001 |
+| `curricular_units_2nd_sem_grade` | p < 0.001 |
+| `age_at_enrollment` | p < 0.001 |
 
-| k | Silhouette moyenne |
-|---:|---:|
-| 2 | 0,2567 |
-| 3 | 0,2481 |
-| 4 | 0,2449 |
-| 5 | 0,2585 |
-| 6 | 0,2611 |
+Pour les variables qualitatives, les tests du khi-deux indiquent aussi des répartitions différentes, notamment pour `tuition_fees_up_to_date`, `debtor`, `gender` et `scholarship_holder`. L'association entre clusters et `target` est forte après construction des groupes, avec un V de Cramer de **0,549**.
 
-Le fichier `05_k_recommande.csv` indique que le nombre de clusters recommandé techniquement est **k = 6**, selon le critère de la **silhouette moyenne maximale**. La silhouette la plus élevée est obtenue pour `k = 6`, avec une valeur de **0,2611**.
+Ces tests décrivent des différences statistiques entre groupes. Ils ne doivent pas être lus comme des mécanismes explicatifs directs.
 
-Cette recommandation doit cependant être interprétée avec prudence. La silhouette maximale de **0,2611** reste modérée ; le choix de **k = 6** est donc retenu non seulement pour ce critère technique, mais aussi pour l’interprétabilité des profils obtenus. Le choix final doit aussi tenir compte de la lisibilité des profils, de leur taille et de leur intérêt pour l’analyse du décrochage.
+## 6. Régression logistique complémentaire
 
-## 4. Description des 6 profils
+La régression logistique est une analyse complémentaire. Elle ne remplace pas le cœur du projet, qui reste la FAMD et le clustering.
 
-### 4.1 Cluster 1 : Profil fragile à risque académique
+Deux modèles sont comparés :
 
-Le cluster 1 regroupe **74 étudiants**. Il contient **64,86 %** de `Dropout`, **17,57 %** de `Enrolled` et **17,57 %** de `Graduate`.
+| Modèle | Accuracy | Recall Dropout | AUC |
+|---|---:|---:|---:|
+| Précoce | 0,849 | 0,716 | 0,884 |
+| Complet | 0,865 | 0,747 | 0,909 |
 
-Ses indicateurs académiques sont faibles : **3,42** unités approuvées au 1er semestre, **2,97** au 2e semestre, une note moyenne de **7,17** au 1er semestre et **5,22** au 2e semestre. La note d’admission moyenne est de **125,74**.
+Le modèle précoce utilise les variables d'entrée et les informations du premier semestre. Il est donc plus utile pour un repérage anticipé. Le modèle complet ajoute les variables du deuxième semestre : il est plus performant, mais disponible plus tard dans le parcours.
 
-Ce cluster correspond à un profil fragile, avec un niveau de risque **élevé**.
+Les coefficients et odds ratios doivent être interprétés comme des associations conditionnelles avec la probabilité de `Dropout`. Ils ne donnent pas une lecture explicative directe.
 
-### 4.2 Cluster 2 : Profil performant à forte réussite
+## 7. Limites
 
-Le cluster 2 regroupe **619 étudiants**. Il contient **18,26 %** de `Dropout`, **17,12 %** de `Enrolled` et **64,62 %** de `Graduate`.
+L'analyse reste exploratoire. Elle identifie des profils et des associations, mais elle ne valide pas de mécanisme explicatif.
 
-Il présente une note d’admission moyenne de **145,75**, la plus élevée parmi les profils décrits. Les performances académiques sont également favorables : **5,47** unités approuvées au 1er semestre, **5,25** au 2e semestre, une note moyenne de **12,91** au 1er semestre et **12,55** au 2e semestre.
+La FAMD principale est volontairement réduite à 11 variables actives. Cette sélection améliore la lisibilité, mais laisse les variables du semestre 2 et les variables économiques en rôle supplémentaire.
 
-Ce cluster correspond à un profil performant, avec un niveau de risque **faible**.
+La projection factorielle 1-2 est partielle : elle facilite la visualisation, mais ne résume pas toute l'information du dataset.
 
-### 4.3 Cluster 3 : Profil stable majoritaire
+Le clustering à deux groupes est robuste et stable, mais il est moins détaillé qu'une segmentation plus fine. Les solutions `k = 3` et `k = 6` restent des lectures secondaires possibles.
 
-Le cluster 3 est le plus important, avec **2158 étudiants**. Il contient **14,97 %** de `Dropout`, **20,67 %** de `Enrolled` et **64,37 %** de `Graduate`.
-
-Ses indicateurs académiques sont favorables : **5,44** unités approuvées au 1er semestre, **5,35** au 2e semestre, une note moyenne de **12,65** au 1er semestre et **12,51** au 2e semestre. La note d’admission moyenne est de **122,69**.
-
-Ce cluster représente un profil stable et majoritaire, avec un niveau de risque **faible**.
-
-### 4.4 Cluster 4 : Profil critique de décrochage
-
-Le cluster 4 regroupe **619 étudiants**. Il présente la proportion la plus élevée de `Dropout`, avec **79,48 %**. Les proportions de `Enrolled` et `Graduate` sont respectivement **9,21 %** et **11,31 %**.
-
-Les performances académiques moyennes sont très faibles : **0,23** unité approuvée au 1er semestre, **0,08** au 2e semestre, une note moyenne de **1,38** au 1er semestre et **0,62** au 2e semestre. La note d’admission moyenne est de **125,88**.
-
-Ce cluster correspond à un profil critique de décrochage, avec un niveau de risque **très élevé**.
-
-### 4.5 Cluster 5 : Profil intermédiaire en transition
-
-Le cluster 5 regroupe **585 étudiants**. Il contient **36,58 %** de `Dropout`, **16,24 %** de `Enrolled` et **47,18 %** de `Graduate`.
-
-Ses performances sont intermédiaires : **6,43** unités approuvées au 1er semestre, **5,69** au 2e semestre, une note moyenne de **11,54** au 1er semestre et **11,17** au 2e semestre. La note d’admission moyenne est de **124,66**.
-
-Ce profil combine une proportion importante de diplômés et une proportion non négligeable de décrochage. Il peut être qualifié de profil intermédiaire, avec un niveau de risque **modéré**.
-
-### 4.6 Cluster 6 : Profil à risque élevé
-
-Le cluster 6 regroupe **369 étudiants**. Il contient **62,60 %** de `Dropout`, **20,87 %** de `Enrolled` et **16,53 %** de `Graduate`.
-
-Ses indicateurs académiques sont inférieurs à ceux des profils favorables : **4,19** unités approuvées au 1er semestre, **3,38** au 2e semestre, une note moyenne de **9,90** au 1er semestre et **8,63** au 2e semestre. La note d’admission moyenne est de **126,33**.
-
-Ce cluster correspond à un profil à risque élevé, moins extrême que le cluster 4 mais clairement associé au décrochage.
-
-## 5. Analyse combinée FAMD + clustering + Target
-
-L’analyse combinée montre que les profils d’étudiants sont fortement associés aux performances académiques. La Dimension 1 de la FAMD, dominée par les unités approuvées, les unités inscrites, les évaluations et les notes des deux semestres, est cohérente avec le fait que certains clusters soient davantage associés à la réussite ou au décrochage.
-
-Les clusters 2 et 3 sont les profils les plus favorables à la réussite. Ils présentent respectivement **64,62 %** et **64,37 %** de `Graduate`, avec des notes semestrielles moyennes supérieures à 12. Ces résultats sont cohérents avec l’interprétation de la Dimension 1 comme axe académique.
-
-À l’inverse, les clusters 4, 1 et 6 sont les profils les plus associés au risque de décrochage. Le cluster 4 est le plus critique, avec **79,48 %** de `Dropout` et des moyennes académiques très faibles. Les clusters 1 et 6 présentent également des proportions élevées de `Dropout`, respectivement **64,86 %** et **62,60 %**.
-
-Le cluster 5 occupe une position intermédiaire. Il présente **47,18 %** de `Graduate`, mais aussi **36,58 %** de `Dropout`. Il ne relève donc ni d’un profil clairement favorable, ni d’un profil aussi critique que les clusters 4, 1 et 6.
-
-La Dimension 2 apporte une lecture complémentaire. Elle met en évidence des variables socio-administratives telles que l’âge à l’inscription, la qualification précédente, le déplacement, les frais de scolarité, le régime jour/soir et le statut de boursier. Ces éléments peuvent aider à contextualiser les profils, même si la séparation principale entre réussite et décrochage reste très liée aux variables académiques.
-
-## 6. Recommandations décisionnelles
-
-Les recommandations suivantes doivent être comprises comme des pistes opérationnelles fondées sur les profils observés, et non comme des preuves causales.
-
-1. Prioriser le suivi des clusters **4**, **1** et **6**, car ils présentent les proportions les plus élevées de `Dropout`.
-
-2. Mettre en place un repérage précoce fondé sur les variables académiques des deux semestres : unités approuvées, unités évaluées et notes moyennes.
-
-3. Accorder une attention particulière au cluster **4**, qui combine une proportion de `Dropout` de **79,48 %** avec des performances académiques très faibles.
-
-4. Accompagner le cluster **5** comme profil intermédiaire : sa proportion de `Graduate` reste importante, mais son taux de `Dropout` de **36,58 %** justifie un suivi.
-
-5. Utiliser les variables de la Dimension 2 pour affiner l’accompagnement : âge à l’inscription, qualification précédente, déplacement, situation des frais de scolarité, régime jour/soir et statut de boursier.
-
-6. Étudier les clusters **2** et **3** comme profils de référence favorables à la réussite, afin d’identifier les caractéristiques communes aux trajectoires stables.
-
-## 7. Limites de l’analyse
-
-Cette analyse est descriptive et exploratoire. Elle permet d’identifier des structures et des profils, mais elle ne démontre pas de relations causales.
-
-La première limite concerne l’inertie expliquée par la FAMD. Les deux premiers axes expliquent **20,23 %** de l’inertie totale. Ils sont utiles pour l’interprétation, mais ne résument pas toute l’information contenue dans les données.
-
-La deuxième limite concerne le choix des variables actives. Certaines variables qualitatives très détaillées ont été limitées ou écartées afin de conserver une FAMD lisible. Ce choix améliore l’interprétation, mais peut réduire une partie de l’information disponible.
-
-La troisième limite concerne le choix du nombre de clusters. Le critère de silhouette recommande **k = 6**, mais les valeurs de silhouette restent proches entre plusieurs valeurs de `k`, notamment `k = 5` avec **0,2585** et `k = 6` avec **0,2611**. Le choix de six clusters doit donc être justifié aussi par la lisibilité et l’intérêt des profils.
-
-La quatrième limite concerne l’utilisation de `Target`. Dans la FAMD, `target` est une variable supplémentaire : elle ne construit pas les axes. Dans le clustering, elle sert à interpréter les groupes après leur formation. Les clusters ne doivent donc pas être confondus avec un modèle supervisé de prédiction.
-
-Enfin, les recommandations proposées doivent être validées par une analyse complémentaire, par exemple une modélisation supervisée ou une validation sur d’autres cohortes.
+Aucune validation externe sur une autre cohorte n'est disponible. Enfin, le modèle logistique complet est plus performant que le modèle précoce, mais il utilise des informations plus tardives.

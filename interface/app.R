@@ -47,11 +47,11 @@ lire_table <- function(nom_fichier) {
 table_dimensions <- lire_table("01_dimensions.csv")
 table_target <- lire_table("03_a_distribution_target.csv")
 table_dictionnaire <- lire_table("02_dictionnaire_variables.csv")
-table_famd_valeurs <- lire_table("04_famd_valeurs_propres.csv")
-table_famd_contributions <- lire_table("04_famd_contributions_axes_1_2.csv")
-table_k_recommande <- lire_table("05_k_recommande.csv")
-table_profils_clusters <- lire_table("05_profils_clusters_interpretes.csv")
-table_logit_metriques <- lire_table("06_metriques_detaillees_logit.csv")
+table_famd_valeurs <- lire_table("04_principale_valeurs_propres.csv")
+table_famd_contributions <- lire_table("04_principale_contributions_axes_1_2.csv")
+table_k_recommande <- lire_table("05_recommandation_solution_clustering_principale.csv")
+table_profils_clusters <- lire_table("05_profils_clusters_principale.csv")
+table_logit_metriques <- lire_table("06_comparaison_modeles_logit.csv")
 table_logit_confusion <- lire_table("06_matrice_confusion.csv")
 table_logit_odds <- lire_table("06_interpretation_odds_ratios.csv")
 
@@ -70,11 +70,45 @@ valeur_dimension <- function(indicateur) {
 }
 
 valeur_k <- function() {
-  if (!"k_recommande" %in% names(table_k_recommande)) {
+  if ("k" %in% names(table_k_recommande)) {
+    return(table_k_recommande$k[[1]])
+  }
+
+  if ("k_recommande" %in% names(table_k_recommande)) {
+    return(table_k_recommande$k_recommande[[1]])
+  }
+
+  return("Non disponible")
+}
+
+valeur_silhouette <- function() {
+  if (!"silhouette_moyenne" %in% names(table_k_recommande)) {
     return("Non disponible")
   }
 
-  table_k_recommande$k_recommande[[1]]
+  format(round(table_k_recommande$silhouette_moyenne[[1]], 3), decimal.mark = ",")
+}
+
+formatter_p_values <- function(donnees) {
+  colonnes_p <- intersect(c("p_value", "p.value"), names(donnees))
+  if (length(colonnes_p) == 0) {
+    return(donnees)
+  }
+
+  for (colonne in colonnes_p) {
+    valeurs <- suppressWarnings(as.numeric(donnees[[colonne]]))
+    donnees[[colonne]] <- ifelse(
+      is.na(valeurs),
+      NA,
+      ifelse(
+        valeurs < 0.001,
+        "p < 0.001",
+        formatC(valeurs, format = "f", digits = 3, decimal.mark = ",")
+      )
+    )
+  }
+
+  donnees
 }
 
 carte_info <- function(titre, valeur, texte) {
@@ -138,6 +172,7 @@ options_dt <- list(
 afficher_dt <- function(donnees, page_length = 8) {
   opts <- options_dt
   opts$pageLength <- page_length
+  donnees <- formatter_p_values(donnees)
 
   DT::datatable(
     donnees,
@@ -412,16 +447,16 @@ ui <- navbarPage(
     h2("FAMD"),
     div(
       class = "interpretation",
-      p(strong("Interpretation retenue : "), "la dimension 1 correspond principalement a un axe academique, tandis que la dimension 2 suggere un axe socio-administratif."),
-      p("La variable ", code("Target"), " est utilisee comme variable illustrative ou supplementaire : elle aide a interpreter les positions des individus mais ne pilote pas la construction des axes.")
+      p(strong("Interpretation retenue : "), "la FAMD principale reduite utilise 11 variables actives. La dimension 1 correspond principalement a un axe academique, tandis que la dimension 2 complete avec le contexte de parcours."),
+      p("La variable ", code("Target"), " est utilisee comme variable illustrative ou supplementaire : elle aide a interpreter les positions des individus mais ne pilote pas la construction des axes. Les variables du semestre 2 et les variables economiques sont supplementaires.")
     ),
     fluidRow(
-      column(6, bloc_figure("04_famd_screeplot.png", "Valeurs propres de la FAMD")),
-      column(6, bloc_figure("04_famd_contributions_axes_1_2.png", "Contributions aux axes 1 et 2"))
+      column(6, bloc_figure("04_principale_screeplot.png", "FAMD principale reduite - valeurs propres")),
+      column(6, bloc_figure("04_principale_variables_top.png", "FAMD principale reduite - variables contributives"))
     ),
     fluidRow(
-      column(6, bloc_figure("04_famd_individus_target.png", "Individus projetes selon Target")),
-      column(6, bloc_figure("04_famd_variables.png", "Variables de la FAMD"))
+      column(6, bloc_figure("04_principale_individus_target.png", "FAMD principale reduite - individus selon Target illustrative")),
+      column(6, bloc_figure("04_principale_barycentres_target.png", "FAMD principale reduite - barycentres Target"))
     ),
     fluidRow(
       column(6, bloc_table("table_famd_valeurs", "Valeurs propres")),
@@ -434,21 +469,22 @@ ui <- navbarPage(
     h2("Clustering sur les coordonnees FAMD"),
     div(
       class = "metric-grid",
-      carte_info("Nombre de profils retenu", valeur_k(), "Valeur issue de outputs/tables/05_k_recommande.csv.")
+      carte_info("Solution principale", paste0("k = ", valeur_k()), "Clustering sur coordonnees de la FAMD principale reduite."),
+      carte_info("Silhouette moyenne", valeur_silhouette(), "Valeur issue de la recommandation finale.")
     ),
     div(
       class = "interpretation",
-      p("Le choix de k = ", valeur_k(), " est retenu car il est recommande techniquement dans les sorties et produit des profils interpretables."),
-      p("Les clusters 2 et 3 sont les plus favorables a la reussite. Les clusters 4, 1 et 6 sont les plus associes au risque de decrochage. Le cluster 5 occupe une position intermediaire."),
-      p("Le clustering reste exploratoire : il met en evidence des groupes utiles pour l'analyse, mais ne constitue pas une preuve causale.")
+      p("La solution principale finale est nb_axes = 2, k = ", valeur_k(), ", avec une silhouette moyenne d'environ ", valeur_silhouette(), "."),
+      p("Le cluster 1 correspond au profil a risque eleve : 929 etudiants et 81,5 % de Dropout. Le cluster 2 correspond au profil majoritaire favorable : 3495 etudiants, 19,0 % de Dropout et 60,8 % de Graduate."),
+      p("Le clustering reste exploratoire et descriptif : il met en evidence des groupes utiles pour l'analyse, mais ne constitue pas une preuve causale.")
     ),
     fluidRow(
-      column(6, bloc_figure("05_silhouette_moyenne.png", "Silhouette moyenne")),
-      column(6, bloc_figure("05_methode_coude.png", "Methode du coude"))
+      column(6, bloc_figure("05_principale_silhouette_moyenne.png", "Solution principale k = 2 - silhouette moyenne")),
+      column(6, bloc_figure("05_principale_methode_coude.png", "Solution principale k = 2 - methode du coude"))
     ),
     fluidRow(
-      column(6, bloc_figure("05_clusters_kmeans_famd.png", "Clusters k-means dans le plan FAMD")),
-      column(6, bloc_figure("05_composition_clusters_target.png", "Composition des clusters selon Target"))
+      column(6, bloc_figure("05_principale_clusters_famd.png", "Clusters principaux sur coordonnees FAMD")),
+      column(6, bloc_figure("05_principale_composition_clusters_target.png", "Composition des deux clusters selon Target illustrative"))
     ),
     fluidRow(
       column(5, bloc_table("table_k_recommande", "Choix de k")),
@@ -461,7 +497,8 @@ ui <- navbarPage(
     h2("Regression logistique complementaire"),
     div(
       class = "interpretation",
-      p("Cette partie complete l'analyse exploratoire en etudiant la distinction ", code("Dropout"), " vs ", code("Non_Dropout"), "."),
+      p("Cette partie complete l'analyse exploratoire en etudiant la distinction ", code("Dropout"), " vs ", code("Non_Dropout"), ". Elle compare un modele precoce et un modele complet."),
+      p("Modele precoce : accuracy 0,849, recall Dropout 0,716, AUC 0,884. Modele complet : accuracy 0,865, recall Dropout 0,747, AUC 0,909."),
       p("Les odds ratios doivent etre interpretes comme des associations statistiques. Ils ne permettent pas, a eux seuls, de conclure a un effet causal.")
     ),
     fluidRow(
@@ -479,11 +516,11 @@ ui <- navbarPage(
       class = "interpretation",
       h3(class = "section-title", "Resultats principaux"),
       tags$ul(
-        tags$li("La dimension 1 de la FAMD correspond a un axe academique."),
-        tags$li("La dimension 2 de la FAMD suggere un axe socio-administratif."),
-        tags$li("Le clustering retient k = ", valeur_k(), " profils."),
-        tags$li("Les profils les plus associes au risque sont les clusters 4, 1 et 6."),
-        tags$li("Les profils les plus favorables a la reussite sont les clusters 2 et 3.")
+        tags$li("La FAMD principale reduite utilise 11 variables actives."),
+        tags$li("Target est illustrative uniquement ; semestre 2 et variables economiques sont supplementaires."),
+        tags$li("Le clustering principal retient nb_axes = 2, k = ", valeur_k(), "."),
+        tags$li("Le cluster 1 est le profil a risque eleve : 929 etudiants, 81,5 % de Dropout."),
+        tags$li("Le cluster 2 est le profil majoritaire favorable : 3495 etudiants, 60,8 % de Graduate.")
       )
     ),
     fluidRow(
